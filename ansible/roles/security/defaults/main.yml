@@ -1,4 +1,3 @@
-
 # ==========================================
 # YKK Team Security Baseline Draft
 # Ubuntu 기준
@@ -27,6 +26,7 @@
   command: chage --warndays 7 root
 
 # 로그인 실패 횟수 제한
+# faillock.conf 설정만 추가하며, 실제 잠금 동작은 PAM 연동 확인 필요
 - name: Configure faillock deny count
   lineinfile:
     path: /etc/security/faillock.conf
@@ -122,41 +122,40 @@
 # OS Security Update
 # ==============================
 
-# 최신 보안 패치 적용 예정
+# 최신 보안 패치 적용
 # 실제 운영 적용 전 테스트 필요
-- name: Security update policy
-  debug:
-    msg: "Security updates should be reviewed before applying"
+- name: Install security updates
+  apt:
+    upgrade: safe
+    update_cache: true
 
 # ==============================
 # Secret Management
 # ==============================
 
 # 추후 적용 예정
-# - .env 파일 Git 업로드 제한
-# - pem / key / token 파일 업로드 제한
-# - GitHub Secret 연동
-# - 운영 계정 분리
+# 로컬 프로젝트 기준 .gitignore 수정 목적
+# 실행 위치에 따라 경로 확인 필요
 
-# .env 파일 관리 정책 안내
-- name: Secret management .env policy
-  debug:
-    msg: ".env files should not be uploaded to Git repositories"
+# .env 파일 Git 업로드 방지
+- name: Configure gitignore env policy
+  lineinfile:
+    path: .gitignore
+    line: ".env"
+    create: true
 
-# PEM Key 관리 정책 안내
-- name: Secret management pem key policy
-  debug:
-    msg: "PEM key files should not be uploaded to Git repositories"
+# pem / key 파일 업로드 방지
+- name: Configure gitignore key policy
+  lineinfile:
+    path: .gitignore
+    line: "*.pem"
+    create: true
 
-# Token 및 Key 관리 정책 안내
-- name: Secret management token policy
-  debug:
-    msg: "Token and key files should be managed separately"
-
-# GitHub Secret 사용 정책 안내
-- name: Secret management GitHub Secret policy
-  debug:
-    msg: "Sensitive credentials should use GitHub Secrets"
+- name: Configure gitignore private key policy
+  lineinfile:
+    path: .gitignore
+    line: "*.key"
+    create: true
 
 # ==============================
 # Docker Security
@@ -164,30 +163,27 @@
 
 # 추후 적용 예정
 # 실제 적용 시 Dockerfile 및 Compose 구조 확인 필요
-# - Root Container 제한
-# - Privileged 옵션 제한
-# - 불필요 포트 최소화
-# - Trivy 이미지 점검
+# 기존 daemon.json이 있으면 덮어쓸 수 있어 실제 적용 전 확인 필요
 
-# Root Container 제한 정책 안내
-- name: Docker root container policy
-  debug:
-    msg: "Containers should run as non-root users"
+# Docker daemon 설정 파일 생성
+- name: Create docker daemon config
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
 
-# Privileged 옵션 제한 정책 안내
-- name: Docker privileged policy
-  debug:
-    msg: "Containers should avoid privileged option"
-
-# 포트 노출 최소화 정책 안내
-- name: Docker exposed ports policy
-  debug:
-    msg: "Expose only required ports"
-
-# 이미지 점검 정책 안내
-- name: Docker image scan policy
-  debug:
-    msg: "Container images should be scanned using Trivy"
+# Docker 로그 관리 설정
+- name: Configure docker log options
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
 
 # ==============================
 # Nginx Security
@@ -195,39 +191,57 @@
 
 # 추후 적용 예정
 # 실제 서비스 기능 영향 확인 후 적용 필요
-# - server_tokens off
-# - autoindex off
-# - HTTPS Redirect
-# - Security Header 적용
-# - 업로드 크기 제한
-# - Method 제한
+# /etc/nginx/nginx.conf에서 conf.d/*.conf include 여부 확인 필요
 
-# 서버 버전 숨김 정책 안내
-- name: Nginx server version policy
-  debug:
-    msg: "Nginx server version exposure should be minimized"
+# Nginx server_tokens off 설정
+- name: Disable nginx server tokens
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*server_tokens'
+    line: '    server_tokens off;'
+    insertafter: 'http {'
+    backup: true
 
-# 디렉토리 리스팅 차단 정책 안내
-- name: Nginx autoindex policy
-  debug:
-    msg: "Directory listing should be disabled"
+# Nginx autoindex off 설정
+- name: Disable nginx autoindex
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*autoindex'
+    line: '    autoindex off;'
+    insertafter: 'http {'
+    backup: true
 
-# HTTPS Redirect 정책 안내
-- name: Nginx HTTPS redirect policy
-  debug:
-    msg: "HTTP traffic should be redirected to HTTPS"
+# Security Header 설정
+- name: Configure nginx security headers
+  copy:
+    dest: /etc/nginx/conf.d/security_headers.conf
+    content: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-# Security Header 정책 안내
-- name: Nginx security header policy
-  debug:
-    msg: "Security headers should be configured"
+# HTTPS Redirect 설정 예시
+- name: Configure nginx https redirect
+  blockinfile:
+    path: /etc/nginx/sites-available/default
+    block: |
+      if ($scheme != "https") {
+          return 301 https://$host$request_uri;
+      }
+    backup: true
 
-# 업로드 크기 제한 정책 안내
-- name: Nginx upload size policy
-  debug:
-    msg: "Client upload size should be limited"
+# 업로드 크기 제한
+- name: Configure nginx upload size limit
+  copy:
+    dest: /etc/nginx/conf.d/upload_limit.conf
+    content: |
+      client_max_body_size 10M;
 
-# HTTP Method 제한 정책 안내
-- name: Nginx allowed method policy
-  debug:
-    msg: "Only required HTTP methods should be allowed"
+# HTTP Method 제한
+- name: Configure nginx allowed methods
+  copy:
+    dest: /etc/nginx/conf.d/allowed_methods.conf
+    content: |
+      limit_except GET POST OPTIONS {
+          deny all;
+      }
