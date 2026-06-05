@@ -1,7 +1,5 @@
-# ykk/modules/02_sg/variables.tf
+# /modules/02_sg/variables.tf
 
-variable "project" {}
-
-variable "vpc_id" {}
-
-variable "my_ip" {}
+variable "project" { type = string }
+variable "name"    { type = string }
+variable "vpc_id"  { type = string }
