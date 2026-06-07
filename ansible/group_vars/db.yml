@@ -1,0 +1,3 @@
+postgres_db: ykk_db
+postgres_user: ykk_user
+postgres_password: ykk_pass

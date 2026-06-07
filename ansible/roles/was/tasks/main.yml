@@ -1,0 +1,16 @@
+---
+- name: 1. 애플리케이션 컨테이너 구동
+  community.docker.docker_container:
+    name: "{{ was_container_name }}"
+    image: "{{ was_image }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ ansible_default_ipv4.address }}:{{ was_port }}:8000"
+    env:
+      DATABASE_URL: "postgresql://{{ db_user }}:{{ db_password }}@{{ db_host }}:{{ db_port }}/{{ db_name }}"
+    comparisons:
+      env: strict
+
+
+      #추후 수정
