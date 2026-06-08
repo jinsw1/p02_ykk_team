@@ -1,0 +1,33 @@
+---
+- name: 1. Nginx 설정 및 HTML 파일을 저장할 호스트 볼륨 디렉터리 생성
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ web_host_config_path }}"
+    - "/var/lib/ykk/nginx/html"
+
+- name: 2. Nginx 리버스 프록시 및 라우팅 설정 템플릿 복사
+  ansible.builtin.template:
+    src: "default.conf.j2"
+    dest: "{{ web_host_config_path }}/default.conf"
+
+- name: 3. 프론트엔드 화면(HTML) 파일 복사
+  ansible.builtin.template:
+    src: "index.html.j2"
+    dest: "/var/lib/ykk/nginx/html/index.html"
+
+- name: 4. Nginx 컨테이너 구동 (최적화 옵션 적용)
+  community.docker.docker_container:
+    name: "{{ web_container_name }}"
+    image: "{{ web_image }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - "{{ web_host_config_path }}:/etc/nginx/conf.d"
+      - "/var/lib/ykk/nginx/html:/usr/share/nginx/html"
+    comparisons:
+      volumes: strict

@@ -1,0 +1,17 @@
+all:
+  children:
+    web_servers:
+      hosts:
+        ykk_web:
+          ansible_host: 43.200.163.214
+          ansible_user: ykk-admin
+    was_servers:
+      hosts:
+        ykk_was:
+          ansible_host: 13.209.64.204
+          ansible_user: ykk-admin
+    db_servers:
+      hosts:
+        ykk_db:
+          ansible_host: 13.125.242.12
+          ansible_user: ykk-admin

@@ -1,0 +1,103 @@
+---
+# =================================================================
+# Docker 엔진 및 Docker Compose 플러그인 설치 (안정성 + KISA 보안)
+# =================================================================
+
+- name: 1. 충돌 방지를 위한 기존(구버전) 패키지 완벽 제거
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-doc
+      - docker-compose
+      - docker-compose-v2
+      - podman-docker
+      - containerd
+      - runc
+    state: absent
+
+- name: 2. Docker 설치를 위한 사전 필수 패키지 설치
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: yes
+
+- name: 3. Docker 공식 GPG 키 저장용 디렉터리 생성
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: 4. Docker 공식 GPG 키 다운로드 및 시스템 등록 (최신 .asc 방식 적용)
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: 5. Docker APT 저장소 동적 등록 (.asc 키 매핑)
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ docker_arch_map[ansible_architecture] | default(ansible_architecture) }}
+      signed-by=/etc/apt/keyrings/docker.asc]
+      https://download.docker.com/linux/ubuntu
+      {{ ansible_facts['distribution_release'] }} stable
+    state: present
+    filename: docker
+    update_cache: yes
+
+- name: 6. 최신 Docker 엔진 및 Docker Compose 플러그인 일괄 설치
+  ansible.builtin.apt:
+    name: "{{ ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-buildx-plugin', 'docker-compose-plugin'] if not docker_version else ['docker-ce=' + docker_version, 'docker-ce-cli=' + docker_version, 'containerd.io', 'docker-buildx-plugin', 'docker-compose-plugin'] }}"
+    state: present
+
+- name: 7. Docker 자동 업그레이드 원천 차단 (버전 고정, 운영 안정성 확보)
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - docker-ce
+    - docker-ce-cli
+
+- name: 8. Docker 서비스 활성화 및 가동
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+# =================================================================
+# Docker 보안 Baseline 설정 (KISA 종합 가이드 반영)
+# =================================================================
+
+- name: 9. Docker daemon 설정 디렉터리 생성 (보안 권한 0750)
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '0750'
+
+- name: 10. Docker 로그 관리 및 KISA 보안 정책 적용 (daemon.json)
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        },
+        "live-restore": true,
+        "icc": false,
+        "userland-proxy": false
+      }
+    mode: '0600'
+  notify: restart docker
+
+# =================================================================
+# 사용자 권한 관리
+# =================================================================
+
+- name: 11. 관리자 계정(ykk-admin)을 docker 그룹에 추가
+  ansible.builtin.user:
+    name: ykk-admin
+    groups: docker
+    append: yes
