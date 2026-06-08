@@ -8,7 +8,7 @@ resource "local_file" "ubuntu_inventory" {
     db_ip        = module.ec2_db.private_ip
     ansible_user = "ubuntu"
   })
-  filename = "${path.module}/../../../ansible/inventory/ubuntu_inventory.ini"
+  filename = "${path.module}/../../../ansible/inventories/ubuntu_inventory.ini"
 }
 
 resource "local_file" "ykk_inventory" {
@@ -19,5 +19,5 @@ resource "local_file" "ykk_inventory" {
     db_ip        = module.ec2_db.private_ip
     ansible_user = "ykk"
   })
-  filename = "${path.module}/../../../ansible/inventory/ykk_inventory.ini"
+  filename = "${path.module}/../../../ansible/inventories/ykk_inventory.ini"
 }
