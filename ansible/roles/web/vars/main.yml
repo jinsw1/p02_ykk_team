@@ -1,0 +1,9 @@
+---
+web_container_name: "ykk-nginx-web"
+web_image: "nginx:alpine"
+
+# 호스트 서버에서 Nginx 설정 파일을 보관할 경로
+web_host_config_path: "/etc/ykk/nginx/conf.d"
+
+# 연결할 WAS 서버의 IP 주소 (Nginx가 트래픽을 넘겨줄 목적지)
+was_host: "13.209.64.204"
