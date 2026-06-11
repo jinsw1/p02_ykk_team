@@ -19,8 +19,8 @@ override.tf.json
 
 # Backend config (환경에 따라 민감)
 backend.tfvars
-#
-terraform.tfvars
+.tfvars
+
 # =========================
 # Ansible
 # =========================
