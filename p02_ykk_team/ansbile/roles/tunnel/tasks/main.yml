@@ -1,0 +1,27 @@
+#~/ansible/roles/tunnel/tasks/main.yml
+---
+- name: 터널 서버 프로젝트 디렉터리 생성
+  ansible.builtin.file:
+    path: /opt/project/docker/compose/tunnel/configs
+    state: directory
+    mode: '0755'
+
+- name: 프로메테우스 설정 파일 전송
+  ansible.builtin.copy:
+    src: ~/project/docker/configs/prod/prometheus.yml
+    dest: /opt/project/docker/compose/tunnel/configs/prometheus.yml
+
+- name: 터널 컴포즈 명세서 전송
+  ansible.builtin.copy:
+    src: ~/project/docker/compose/tunnel/prod.yml
+    dest: /opt/project/docker/compose/tunnel/prod.yml
+
+- name: 도커 컴포즈 가동 (Cloudflare Token 주입)
+  community.docker.docker_compose_v2:
+    project_src: /opt/project/docker/compose/tunnel
+    files:
+      - prod.yml
+    state: present
+    build: always
+    # env:
+    #   CLOUDFLARE_TOKEN: "{{ cloudflare_token }}"

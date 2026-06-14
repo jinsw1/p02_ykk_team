@@ -1,0 +1,33 @@
+#~/ansible/playbooks/bootstrap.yml
+---
+- hosts: all
+  become: yes
+  remote_user: "{{ ansible_user }}"
+  gather_facts: no
+  tasks:
+    - name: 1. ykk-admin 그룹 생성
+      ansible.builtin.group:
+        name: ykk-admin
+        state: present
+
+    - name: 2. ykk-admin 유저 생성 및 그룹 지정
+      ansible.builtin.user:
+        name: ykk-admin
+        group: ykk-admin
+        shell: /bin/bash
+        create_home: yes
+        state: present
+
+    - name: 3. ykk-admin 계정에 SSH Public Key 주입
+      ansible.posix.authorized_key:
+        user: ykk-admin
+        state: present
+        # 로컬 PC의 키페어 파일(.pem)을 읽어서 가상 서버에 공개키로 주입합니다.
+        key: "{{ lookup('file', '~/.ssh/ykk_test.pub') }}"
+
+    - name: 4. ykk-admin 계정에 패스워드 없는 sudo 권한 부여
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/ykk-admin
+        content: "ykk-admin ALL=(ALL) NOPASSWD:ALL\n"
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s

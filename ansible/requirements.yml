@@ -1,7 +1,0 @@
-roles:
-  - name: geerlingguy.nginx
-  - name: geerlingguy.postgresql
-
-collections:
-  - name: prometheus.prometheus
-  - name: grafana.grafana

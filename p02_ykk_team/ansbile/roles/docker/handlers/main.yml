@@ -1,0 +1,7 @@
+#~/ansible/roles/docker/handlers/main.yml
+---
+# handlers/main.yml
+- name: restart docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted

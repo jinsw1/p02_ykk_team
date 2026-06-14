@@ -1,0 +1,5 @@
+#~/project/docker/images/was/requirements.txt
+fastapi==0.110.0
+uvicorn==0.28.0
+sqlalchemy
+psycopg2-binary

@@ -1,0 +1,47 @@
+#~/ansible/roles/was/tasks/main.yml
+---
+- name: 기존 시스템 서비스 기반 모니터링 에이전트 중지
+  ansible.builtin.systemd:
+    name: node_exporter
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+
+- name: 서버 내부에 프로젝트 디렉터리 구조 생성
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /opt/project/docker/compose/was/configs
+    - /opt/project/images/was
+
+- name: 애플리케이션 소스 및 도커 빌드 파일 전송
+  ansible.builtin.copy:
+    src: "~/project/images/was/{{ item }}"
+    dest: /opt/project/images/was/
+  loop:
+    - main.py
+    - requirements.txt
+    - Dockerfile
+
+- name: 웹 서버 설정 파일 전송
+  ansible.builtin.copy:
+    src: "~/project/docker/configs/prod/{{ item }}"
+    dest: /opt/project/docker/compose/was/configs/{{ item }}
+  loop:
+    - default.conf
+    - index.html
+
+- name: 운영 환경용 도커 컴포즈 명세서 전송
+  ansible.builtin.template:
+    src: ~/project/docker/compose/was/prod.yml.j2
+    dest: /opt/project/docker/compose/was/prod.yml
+
+- name: 도커 컴포즈를 이용한 애플리케이션 세트 가동
+  community.docker.docker_compose_v2:
+    project_src: /opt/project/docker/compose/was
+    files:
+      - prod.yml
+    state: present
+    build: always
