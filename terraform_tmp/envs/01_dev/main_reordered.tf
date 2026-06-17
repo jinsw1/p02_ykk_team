@@ -35,6 +35,7 @@ data "aws_availability_zones" "available" { state = "available" }
 data "cloudflare_zones" "main" {
   name = var.domain_name
 }
+
 locals {
   zone_id = data.cloudflare_zones.main.result[0].id
 }
@@ -76,14 +77,24 @@ module "project02_private_subnet_infra" {
   name          = "project02-private-infra"
 }
 
-module "project02_private_subnet_was" {
+module "project02_private_subnet_was_a" {
   source        = "../../modules/subnet"
   vpc_id        = module.project02_vpc.vpc_id
   cidr_block    = "10.0.20.0/24"
   az            = data.aws_availability_zones.available.names[0]
   map_public_ip = false
-  name          = "project02-private-was"
+  name          = "project02-private-was-a"
 }
+
+module "project02_private_subnet_was_b" {
+  source        = "../../modules/subnet"
+  vpc_id        = module.project02_vpc.vpc_id
+  cidr_block    = "10.0.21.0/24"
+  az            = data.aws_availability_zones.available.names[1]
+  map_public_ip = false
+  name          = "project02-private-was-b"
+}
+
 
 module "project02_private_subnet_db" {
   source        = "../../modules/subnet"
@@ -166,13 +177,14 @@ resource "aws_instance" "nat_instance" {
   tags       = { Name = "nat-instance" }
 }
 
-resource "aws_eip" "nat" {
-  domain = "vpc"
-}
-resource "aws_eip_association" "nat" {
-  instance_id   = aws_instance.nat_instance.id
-  allocation_id = aws_eip.nat.id
-}
+##탄력 아이피 적용시 주석제거
+# resource "aws_eip" "nat" {
+#   domain = "vpc"
+# }
+# resource "aws_eip_association" "nat" {
+#   instance_id   = aws_instance.nat_instance.id
+#   allocation_id = aws_eip.nat.id
+# }
 
 ############################################
 # 06. ROUTE TABLES
@@ -212,10 +224,15 @@ resource "aws_route_table_association" "infra_rt" {
   subnet_id      = module.project02_private_subnet_infra.subnet_id
   route_table_id = aws_route_table.private_rt.id
 }
-resource "aws_route_table_association" "was_rt" {
-  subnet_id      = module.project02_private_subnet_was.subnet_id
+resource "aws_route_table_association" "was_a_rt" {
+  subnet_id      = module.project02_private_subnet_was_a.subnet_id
   route_table_id = aws_route_table.private_rt.id
 }
+resource "aws_route_table_association" "was_b_rt" {
+  subnet_id      = module.project02_private_subnet_was_b.subnet_id
+  route_table_id = aws_route_table.private_rt.id
+}
+
 resource "aws_route_table_association" "db_rt" {
   subnet_id      = module.project02_private_subnet_db.subnet_id
   route_table_id = aws_route_table.private_rt.id
@@ -247,6 +264,7 @@ module "project02_was_sg" {
   ingress_rules = [
     { from_port = 22, to_port = 22, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"], description = "SSH" },
     { from_port = 80, to_port = 80, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"], description = "HTTP" },
+	{ from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"], description = "HTTP" },
     { from_port = -1, to_port = -1, protocol = "icmp", cidr_blocks = [module.project02_vpc.cidr_block], description = "ICMP" }
   ]
   egress_rules = [
@@ -361,6 +379,11 @@ module "project02_infra_ec2" {
   name                 = "project02-infra"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
+  role   = "infra"
+  env    = "prod"
+
+  source_dest_check      = false
+
   # NAT + private_rt 생성 완료 후에만 실행
   depends_on = [
     aws_instance.nat_instance,
@@ -369,6 +392,11 @@ module "project02_infra_ec2" {
 
   user_data = <<-EOF
     #!/bin/bash -eux
+
+    echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+    echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+    sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
+
     until curl -s https://pkgs.tailscale.com >/dev/null; do sleep 5; done
     curl -fsSL https://tailscale.com/install.sh | sh
     systemctl enable --now tailscaled
@@ -385,21 +413,29 @@ module "project02_infra_ec2" {
 module "project02_was01_ec2" {
   source               = "../../modules/ec2"
   instance_type        = "t3.micro"
-  subnet_id            = module.project02_private_subnet_was.subnet_id
+  subnet_id            = module.project02_private_subnet_was_a.subnet_id
   security_group_ids   = [module.project02_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
   name                 = "project02-was01"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+  
+  role   = "was"
+  env    = "prod"
+
+
 }
 
 module "project02_was02_ec2" {
   source               = "../../modules/ec2"
   instance_type        = "t3.micro"
-  subnet_id            = module.project02_private_subnet_was.subnet_id
+  subnet_id            = module.project02_private_subnet_was_b.subnet_id
   security_group_ids   = [module.project02_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
   name                 = "project02-was02"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+
+  role   = "was"
+  env    = "prod"
 }
 
 module "project02_db_ec2" {
@@ -410,6 +446,9 @@ module "project02_db_ec2" {
   key_name             = module.project02_db_ec2_key.key_name
   name                 = "project02-db"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+
+  role   = "db"
+  env    = "prod"
 }
 
 ############################################
@@ -421,14 +460,14 @@ resource "time_sleep" "wait_for_tailscale_sync" {
 }
 
 data "tailscale_device" "my_ec2_device" {
-  hostname   = "project02"
-  wait_for   = "300s"
-  depends_on = [time_sleep.wait_for_tailscale_sync]
+   hostname   = "project02"
+   wait_for   = "300s"
+   depends_on = [time_sleep.wait_for_tailscale_sync]
 }
 
 resource "tailscale_device_subnet_routes" "approve_vpc_routes" {
-  device_id = data.tailscale_device.my_ec2_device.id
-  routes    = [module.project02_vpc.cidr_block]
+   device_id = data.tailscale_device.my_ec2_device.id
+   routes    = [module.project02_vpc.cidr_block]
 }
 
 ############################################
@@ -539,14 +578,14 @@ module "project02_dns" {
 ############################################
 
 resource "local_file" "ansible_inventory_bootstrap" {
-	filename = "${path.root}/../../../01_ansible/inventories/dev/inventory.yml"
+	filename = "${path.root}/../../../01_ansible/inventories/bootstrap/inventory.yml"
     content = yamlencode({
         all = {
             children = {
                 ykk_infra = {
                     hosts = {
                         "${module.project02_infra_ec2.private_ip}" = {
-                            ansible_user = "ec2-user"
+                            ansible_user = "ubuntu"
                             ansible_ssh_private_key_file = "~/.ssh/${module.project02_infra_ec2_key.key_name}.pem"
                         }
                     }
@@ -554,12 +593,12 @@ resource "local_file" "ansible_inventory_bootstrap" {
                 ykk_was = {
                     hosts = {
                         "${module.project02_was01_ec2.private_ip}" = {
-                            ansible_user = "ec2-user"
+                            ansible_user = "ubuntu"
                             ansible_ssh_private_key_file = "~/.ssh/${module.project02_was_ec2_key.key_name}.pem"
                         }
 
 					    "${module.project02_was02_ec2.private_ip}" = {
-					      ansible_user = "ec2-user"
+					      ansible_user = "ubuntu"
 					      ansible_ssh_private_key_file = "~/.ssh/${module.project02_was_ec2_key.key_name}.pem"
 					    }						
                     }
@@ -567,8 +606,51 @@ resource "local_file" "ansible_inventory_bootstrap" {
                 ykk_db = {
                     hosts = {
                         "${module.project02_db_ec2.private_ip}" = {
-                            ansible_user = "ec2-user"
+                            ansible_user = "ubuntu"
                             ansible_ssh_private_key_file = "~/.ssh/${module.project02_db_ec2_key.key_name}.pem"
+                        }
+                    }
+                }				
+            }
+        }
+    })
+}
+
+############################################
+# Ansivle - inventory.yml
+############################################
+
+resource "local_file" "ansible_inventory_dev" {
+	filename = "${path.root}/../../../01_ansible/inventories/dev/inventory.yml"
+    content = yamlencode({
+        all = {
+            children = {
+                ykk_infra = {
+                    hosts = {
+                        "${module.project02_infra_ec2.private_ip}" = {
+                            ansible_user = "ykk-admin"
+                            ansible_ssh_private_key_file = "~/.ssh/ykkadmin-key.pem"
+                        }
+                    }
+                }					
+                ykk_was = {
+                    hosts = {
+                        "${module.project02_was01_ec2.private_ip}" = {
+                            ansible_user = "ykk-admin"
+                            ansible_ssh_private_key_file = "~/.ssh/ykkadmin-key.pem"
+                        }
+
+					    "${module.project02_was02_ec2.private_ip}" = {
+					      ansible_user = "ykk-admin"
+					      ansible_ssh_private_key_file = "~/.ssh/ykkadmin-key.pem"
+					    }
+                    }
+                }
+                ykk_db = {
+                    hosts = {
+                        "${module.project02_db_ec2.private_ip}" = {
+                            ansible_user = "ykk-admin"
+                            ansible_ssh_private_key_file = "~/.ssh/ykkadmin-key.pem"
                         }
                     }
                 }				
