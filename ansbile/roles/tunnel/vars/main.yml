@@ -1,0 +1,3 @@
+#~/ansible/roles/tunnel/vars/main.yml
+---
+cloudflare_token: "cloudflare_token값 넣기"

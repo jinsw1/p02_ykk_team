@@ -1,0 +1,18 @@
+#~/ansible/inventory/invenroty.yml
+all:
+  children:
+    tunnel_servers:
+      hosts:
+        ykk_web:
+          ansible_host: 15.164.49.207
+          ansible_user: ykk-admin
+    was_servers:
+      hosts:
+        ykk_was:
+          ansible_host: 3.35.233.61
+          ansible_user: ykk-admin
+    db_servers:
+      hosts:
+        ykk_db:
+          ansible_host: 43.200.173.128
+          ansible_user: ykk-admin

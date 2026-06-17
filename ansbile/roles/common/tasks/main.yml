@@ -1,0 +1,95 @@
+#~/ansible/roles/common/tasks/main.yml
+---
+# ==========================================
+# 1. OS 기본 보안 및 타임존 설정 (common)
+# ==========================================
+
+# 타임존 및 시간 동기화
+- name: Set timezone to Asia/Seoul
+  ansible.builtin.timezone:
+    name: Asia/Seoul
+
+- name: Install chrony for time synchronization
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+    update_cache: yes
+
+- name: Enable and start chrony service
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: yes
+
+# Password Policy 
+- name: Set password max age
+  ansible.builtin.command: chage --maxdays 90 root
+
+- name: Set password min age
+  ansible.builtin.command: chage --mindays 7 root
+
+- name: Set password warning age
+  ansible.builtin.command: chage --warndays 7 root
+
+- name: Configure faillock deny count
+  ansible.builtin.lineinfile:
+    path: /etc/security/faillock.conf
+    regexp: '^deny'
+    line: "deny = 5"
+    create: true
+
+# Package Security
+- name: Remove insecure packages
+  ansible.builtin.apt:
+    name:
+      - telnetd
+      - rsh-server
+    state: absent
+    purge: true
+    update_cache: true
+
+# --- [기존 코드] Audit Log ---
+- name: Install auditd package
+  ansible.builtin.apt:
+    name: auditd
+    state: present
+
+- name: Enable auditd service
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: true
+
+# --- [기존 코드] SYSCTL Security ---
+- name: Enable ASLR
+  ansible.posix.sysctl:
+    name: kernel.randomize_va_space
+    value: '2'
+    state: present
+    reload: true
+
+- name: Enable TCP SYN Cookies
+  ansible.posix.sysctl:
+    name: net.ipv4.tcp_syncookies
+    value: '1'
+    state: present
+    reload: true
+
+- name: Disable ICMP Redirect
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.accept_redirects
+    value: '0'
+    state: present
+    reload: true
+
+- name: Disable Source Route
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.accept_source_route
+    value: '0'
+    state: present
+    reload: true
+
+# --- [기존 코드] OS Security Update ---
+- name: Install security updates
+  ansible.builtin.apt:
+    upgrade: safe
