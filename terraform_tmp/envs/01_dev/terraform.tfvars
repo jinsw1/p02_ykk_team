@@ -2,7 +2,7 @@
 
 host_name          = ""
 tailnet_name       = ""
-tailscale_api_key  = ""
+tailscale_api_key = ""
 tailscale_auth_key = ""
 
 cloudflare_api_token = ""
