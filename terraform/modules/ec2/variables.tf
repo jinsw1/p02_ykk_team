@@ -18,9 +18,17 @@ variable "name" {
   type = string
 }
 
+variable "role" {
+  type = string
+}
+
+variable "env" {
+  type = string
+}
+
 variable "root_volume_size" {
   type    = number
-  default = 8
+  default = 10
 }
 
 variable "tags" {
@@ -33,4 +41,19 @@ variable "iam_instance_profile" {
   description = "bastion 서버(for 프로메테우스)가 EC2 목록을 조회하기 위해 사용할 IAM 인스턴스 프로파일의 이름"
   type        = string
   default     = null
+}
+
+variable "user_data" {
+  type    = string
+  default = ""
+}
+
+variable "source_dest_check" {
+  type    = bool
+  default = true
+}
+
+variable "associate_public_ip_address" {
+  type    = bool
+  default = null
 }

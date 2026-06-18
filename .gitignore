@@ -12,20 +12,22 @@ override.tf.json
 *_override.tf.json
 
 # Terraform CLI config
-#.terraform.lock.hcl
+.terraform.lock.hcl
 
 # Plan files (절대 커밋 금지)
 *.tfplan
 
 # Backend config (환경에 따라 민감)
 backend.tfvars
-.tfvars
+terraform.tfvars
 
 # =========================
 # Ansible
 # =========================
+ansible/inventories/*
 ansible/inventories/*/group_vars/secrets.yml
 ansible/inventories/*/host_vars/*/secrets.yml
+ansible/ansible.cfg
 
 # Ansible runtime artifacts
 *.retry

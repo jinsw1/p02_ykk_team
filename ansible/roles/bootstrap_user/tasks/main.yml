@@ -1,0 +1,102 @@
+---
+
+- name: 1. ykk-admin 그룹 생성
+  ansible.builtin.group:
+    name: ykk-admin
+    state: present
+
+- name: 2. ykk-admin 유저 생성 및 그룹 지정
+  ansible.builtin.user:
+    name: ykk-admin
+    group: ykk-admin
+    shell: /bin/bash
+    create_home: yes
+    state: present
+
+- name: debug home
+  debug:
+    msg:
+      - "ansible_user={{ ansible_user }}"
+      - "home={{ lookup('env','HOME') }}"
+
+# 키생성
+- name: ykkadmin keygen
+  delegate_to: localhost
+  run_once: true
+  become: no # sudo 안쓰기
+  command: >
+    ssh-keygen -t rsa -b 4096
+    -f {{ lookup('env', 'HOME') }}/.ssh/ykkadmin-key.pem
+    -N ""
+  args:
+    creates: "{{ lookup('env','HOME') }}/.ssh/ykkadmin-key.pem"
+
+- name: ykkadmin key 등록
+  ansible.posix.authorized_key:
+    user: ykk-admin
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/ykkadmin-key.pem.pub') }}"
+
+- name: 4. ykk-admin 계정에 패스워드 없는 sudo 권한 부여
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/ykk-admin
+    content: "ykk-admin ALL=(ALL) NOPASSWD:ALL\n"
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
+
+
+
+
+# # 1. 그룹 생성 (ykk-admin 운영 그룹)
+# - name: Ensure ykk-admin group exists (그룹 생성)
+#   ansible.builtin.group:
+#     name: ykk-admin
+#     state: present
+
+
+# # 2. 유저 생성 (관리 계정)
+# - name: Ensure ykk-admin user exists (사용자 생성)
+#   ansible.builtin.user:
+#     name: ykk-admin
+#     group: ykk-admin
+#     shell: /bin/bash
+#     create_home: yes
+#     state: present
+
+
+# # 3. SSH key 존재 확인 (로컬 키 체크)
+# - name: Check SSH key exists (키 존재 여부 확인)
+#   ansible.builtin.stat:
+#     path: "{{ lookup('env','HOME') }}/.ssh/ykkadmin-key.pem"
+#   register: ykk_key
+
+
+# # SSH key 생성 (없는 경우에만 생성)
+# - name: Generate SSH key if missing (키 생성)
+#   delegate_to: localhost
+#   run_once: true
+#   become: false
+#   ansible.builtin.command: >
+#     ssh-keygen -t rsa -b 4096
+#     -f {{ lookup('env','HOME') }}/.ssh/ykkadmin-key.pem
+#     -N ""
+#   when: not ykk_key.stat.exists
+
+
+# # 4. authorized key 등록 (접속 키 설정)
+# - name: Install authorized key for ykk-admin (공개키 등록)
+#   ansible.posix.authorized_key:
+#     user: ykk-admin
+#     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/ykkadmin-key.pem.pub') }}"
+#     state: present
+
+
+# # 5. sudo 권한 설정 (비밀번호 없는 sudo)
+# - name: Configure passwordless sudo for ykk-admin (sudo 권한 설정)
+#   ansible.builtin.copy:
+#     dest: /etc/sudoers.d/ykk-admin
+#     content: |
+#       ykk-admin ALL=(ALL) NOPASSWD:ALL
+#     mode: '0440'
+#     owner: root
+#     group: root
+#     validate: /usr/sbin/visudo -cf %s
