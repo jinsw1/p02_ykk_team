@@ -12,10 +12,10 @@ terraform {
 }
 
 provider "aws" { region = "ap-northeast-2" }
-provider "tailscale" {
-  api_key = var.tailscale_api_key
-  tailnet = var.tailnet_name
-}
+# provider "tailscale" {
+#   api_key = var.tailscale_api_key
+#   tailnet = var.tailnet_name
+# }
 provider "cloudflare" { api_token = var.cloudflare_api_token }
 
 data "cloudflare_zones" "main" {
@@ -134,7 +134,7 @@ module "stg_was01" {
   iam_instance_profile = data.aws_iam_instance_profile.ssm.name
 
   name = "stg-was01"
-  role = "was"
+  role = "was-staging"
   env  = "staging"
 }
 
@@ -149,7 +149,7 @@ module "stg_was02" {
   iam_instance_profile = data.aws_iam_instance_profile.ssm.name
 
   name = "stg-was02"
-  role = "was"
+  role = "was-staging"
   env  = "staging"
 }
 
@@ -168,7 +168,7 @@ module "stg_db" {
   iam_instance_profile = data.aws_iam_instance_profile.ssm.name
 
   name = "stg-db"
-  role = "db"
+  role = "db-staging"
   env  = "staging"
 }
 
@@ -311,7 +311,7 @@ module "stg_dns" {
 ############################################
 
 resource "local_file" "ansible_inventory_bootstrap" {
-	filename = "${path.root}/../../../01_ansible/inventories/staging/inventory-bootstrap.yml"
+	filename = "${path.root}/../../../ansible/inventories/staging/inventory-bootstrap.yml"
     content = yamlencode({
         all = {
             children = {		
@@ -346,7 +346,7 @@ resource "local_file" "ansible_inventory_bootstrap" {
 ############################################
 
 resource "local_file" "ansible_inventory_dev" {
-	filename = "${path.root}/../../../01_ansible/inventories/staging/inventory.yml"
+	filename = "${path.root}/../../../ansible/inventories/staging/inventory.yml"
     content = yamlencode({
         all = {
             children = {		
@@ -420,19 +420,19 @@ variable "host_name" {
   default = "aws-ec2"
 }
 
-variable "tailnet_name" {
-  type = string
-}
+# variable "tailnet_name" {
+#   type = string
+# }
 
-variable "tailscale_auth_key" {
-  type      = string
-  sensitive = true
-}
+# variable "tailscale_auth_key" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "tailscale_api_key" {
-  type      = string
-  sensitive = true
-}
+# variable "tailscale_api_key" {
+#   type      = string
+#   sensitive = true
+# }
 
 variable "domain_name" {
   type    = string

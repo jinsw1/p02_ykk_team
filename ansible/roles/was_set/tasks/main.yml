@@ -53,10 +53,15 @@
 
 - name: Reset to latest commit
   become_user: ykk-admin
+  # shell: |
+  #   cd /home/ykk-admin/app
+  #   git checkout main
+  #   git reset --hard origin/main
+
   shell: |
     cd /home/ykk-admin/app
-    git checkout main
-    git reset --hard origin/main
+    git checkout main        
+    git reset --hard chore/project-cleanup    
 
 
 - name: Create .env file

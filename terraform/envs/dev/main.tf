@@ -501,8 +501,8 @@ module "project02_infra_ec2" {
   name                 = "project02-infra"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  role = "infra"
-  env  = "prod"
+  role = "infra-dev"
+  env  = "dev"
 
   source_dest_check = false
 
@@ -541,8 +541,8 @@ module "project02_was01_ec2" {
   name                 = "project02-was01"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  role = "was"
-  env  = "prod"
+  role = "was-dev"
+  env  = "dev"
 }
 
 # WAS 2 (App server AZ-B)
@@ -555,8 +555,8 @@ module "project02_was02_ec2" {
   name                 = "project02-was02"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  role = "was"
-  env  = "prod"
+  role = "was-dev"
+  env  = "dev"
 }
 
 # DB EC2 (PostgreSQL layer)
@@ -569,8 +569,8 @@ module "project02_db_ec2" {
   name                 = "project02-db"
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  role = "db"
-  env  = "prod"
+  role = "db-dev"
+  env  = "dev"
 }
 
 ############################################
