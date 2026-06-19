@@ -29,6 +29,12 @@ jobs:
         uses: dorny/paths-filter@v3
         id: filter
         with:
+          # 커밋기준
+          base: ${{ github.event.before }}
+          ref: ${{ github.sha }}        
+          ## PR 기준
+          #base: ${{ github.event.pull_request.base.sha }}
+          #ref: ${{ github.event.pull_request.head.sha }}     
           filters: |
             app:
               - 'docker/was_server/fastapi_lunch_app/**'
@@ -213,6 +219,8 @@ jobs:
 
               \"APP_CHANGED=${{ needs.detect.outputs.app }}\",
               \"NGINX_CHANGED=${{ needs.detect.outputs.nginx }}\",
+
+              \"echo APP=$APP_CHANGED\",              
 
               \"if [ \\\"$APP_CHANGED\\\" = \\\"true\\\" ] && [ \\\"$NGINX_CHANGED\\\" = \\\"true\\\" ]; then\",
               \"  echo 'FULL REDEPLOY'\",
