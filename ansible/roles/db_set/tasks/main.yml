@@ -16,7 +16,7 @@
   # shell: |
   #   git clone --no-checkout https://github.com/jinsw1/ykk_team_dev.git /home/ykk-admin/db
   shell: |
-    git clone --no-checkout -b chore/project-cleanup https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/db      
+    git clone --no-checkout -b dev/jinsw https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/db      
   args:
     creates: /home/ykk-admin/db/.git
 
@@ -43,7 +43,7 @@
   shell: |
     cd /home/ykk-admin/db
     git checkout main
-    git reset --hard chore/project-cleanup
+    git reset --hard dev/jinsw
 
 
 

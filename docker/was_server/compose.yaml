@@ -24,7 +24,7 @@ services:
 
   ykk-app:
     #image: ykk/lunch-app:latest
-    image: jinsw1/ykk-app-test:1.0
+    image: jinsw1/ykk-app:${ENV}
     ports:
       - "8000:8000"
     environment:
