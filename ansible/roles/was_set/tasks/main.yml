@@ -29,7 +29,7 @@
   # shell: |
   #   git clone --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
   shell: |
-    git clone -b chore/project-cleanup --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
+    git clone -b dev/yunjuka --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
   args:
     creates: /home/ykk-admin/app/.git
 
@@ -61,7 +61,7 @@
   shell: |
     cd /home/ykk-admin/app
     git checkout main        
-    git reset --hard chore/project-cleanup    
+    git reset --hard dev/yunjuka    
 
 
 - name: Create .env file
