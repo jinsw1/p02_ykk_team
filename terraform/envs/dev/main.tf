@@ -524,7 +524,7 @@ module "project02_infra_ec2" {
     sysctl --system
     tailscale up \
       --auth-key=${tailscale_tailnet_key.ec2_join_key.key} \
-      --hostname=project02 \
+      --hostname=${var.host_name} \
       --advertise-routes=${module.project02_vpc.cidr_block} \
       --accept-routes \
       --ssh
@@ -598,7 +598,7 @@ resource "time_sleep" "wait_for_tailscale_sync" {
 
 # Find registered device in Tailnet
 data "tailscale_device" "my_ec2_device" {
-  hostname = "project02"
+  hostname = var.host_name
   wait_for = "180s"
 
   depends_on = [time_sleep.wait_for_tailscale_sync]
