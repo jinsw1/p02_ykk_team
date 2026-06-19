@@ -222,17 +222,17 @@ jobs:
 
               \"echo APP=$APP_CHANGED\",              
 
-              \"if [ \\\"$APP_CHANGED\\\" = \\\"true\\\" ] && [ \\\"$NGINX_CHANGED\\\" = \\\"true\\\" ]; then\",
+              \"if [ \\\"${{ needs.detect.outputs.app }}\\\" = \\\"true\\\" ] && [ \\\"${{ needs.detect.outputs.nginx }}\\\" = \\\"true\\\" ]; then\",
               \"  echo 'FULL REDEPLOY'\",
               \"  docker pull jinsw1/ykk-app:$IMAGE_TAG\",
               \"  docker compose up -d --build\",
 
-              \"elif [ \\\"$APP_CHANGED\\\" = \\\"true\\\" ]; then\",
+              \"elif [ \\\"${{ needs.detect.outputs.app }}\\\" = \\\"true\\\" ]; then\",
               \"  echo 'APP ONLY'\",
               \"  docker pull jinsw1/ykk-app:$IMAGE_TAG\",
               \"  docker compose up -d ykk-app\",
 
-              \"elif [ \\\"$NGINX_CHANGED\\\" = \\\"true\\\" ]; then\",
+              \"elif [ \\\"${{ needs.detect.outputs.nginx }}\\\" = \\\"true\\\" ]; then\",
               \"  echo 'NGINX ONLY'\",
               \"  docker compose up -d nginx\",
 
