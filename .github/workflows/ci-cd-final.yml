@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - staging
-      - dev
+      - "dev/**"
       - "feature/**"
 
   workflow_dispatch:
