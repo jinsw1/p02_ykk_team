@@ -79,4 +79,10 @@ Staging-세팅
 ansible-playbook -i inventories/staging/inventory-bootstrap.yml
 
 
+
+빈 커밋!!!
+
+> git commit --allow-empty -m "Trigger GitHub Actions"
+> git push origin dev/jinsw
+
 ```

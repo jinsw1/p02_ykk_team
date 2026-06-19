@@ -80,22 +80,44 @@ jobs:
       - name: Login to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      # =========================
+      # SHA 태그 생성
+      # =========================      
+      - name: Set image tags
+        run: |
+          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+
+          echo "SHA_TAG=$SHORT_SHA" >> $GITHUB_ENV
+
+          echo "SHA_TAG=$SHORT_SHA"
+          echo "IMAGE_TAG=$IMAGE_TAG"
 
 
       # =========================
       # 5. Build Docker image
       # =========================
+      #- name: Build Docker image
+      #  run: |
+      #    docker build -t jinsw1/ykk-app:$IMAGE_TAG ./docker/was_server/fastapi_lunch_app
       - name: Build Docker image
         run: |
-          docker build -t jinsw1/ykk-app:$IMAGE_TAG ./docker/was_server/fastapi_lunch_app
+          docker build \
+            -t jinsw1/ykk-app:$SHA_TAG \
+            -t jinsw1/ykk-app:$IMAGE_TAG \
+            ./docker/was_server/fastapi_lunch_app      
 
 
       # =========================
       # 6. Push Docker image
       # =========================
+      #- name: Push Docker image
+      #  run: |
+      #    docker push jinsw1/ykk-app:$IMAGE_TAG
       - name: Push Docker image
         run: |
-          docker push jinsw1/ykk-app:$IMAGE_TAG
+          docker push jinsw1/ykk-app:$SHA_TAG
+          docker push jinsw1/ykk-app:$IMAGE_TAG      
 
 
       # =========================
