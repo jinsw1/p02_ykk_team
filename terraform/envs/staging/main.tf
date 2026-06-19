@@ -241,14 +241,14 @@ resource "aws_lb_target_group_attachment" "stg_was2" {
 
 #data "aws_acm_certificate" "existing" {
 data "aws_acm_certificate" "wildcard" {
-  #domain      = "infrastudy.store"
-  domain      = "*.infrastudy.store"
+  #domain      = "${var.domain_name}"
+  domain      = var.domain_name
   statuses    = ["ISSUED"]
   most_recent = true
 }
 
 # data "aws_acm_certificate" "wildcard" {
-#   domain      = "*.infrastudy.store"
+#   domain      = "*.${var.domain_name}"
 #   statuses    = ["ISSUED"]
 # }
 
@@ -436,7 +436,7 @@ variable "host_name" {
 
 variable "domain_name" {
   type    = string
-  default = "infrastudy.store"
+  default = ""
 }
 
 variable "cloudflare_api_token" {
