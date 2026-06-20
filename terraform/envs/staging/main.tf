@@ -242,7 +242,7 @@ resource "aws_lb_target_group_attachment" "stg_was2" {
 #data "aws_acm_certificate" "existing" {
 data "aws_acm_certificate" "wildcard" {
   #domain      = "infrastudy.store"
-  domain      = "*.infrastudy.store"
+  domain      = "${var.domain_name}"
   statuses    = ["ISSUED"]
   most_recent = true
 }
