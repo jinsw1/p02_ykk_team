@@ -60,8 +60,8 @@
 
   shell: |
     cd /home/ykk-admin/app
-    git checkout main        
-    git reset --hard dev/jyb  
+    git checkout dev/jyb        
+    git reset --hard origin/dev/jyb
 
 
 - name: Create .env file

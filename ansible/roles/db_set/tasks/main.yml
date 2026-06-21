@@ -32,7 +32,7 @@
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/db
-    git fetch origin main
+    git fetch origin dev/jyb
 
 - name: Reset to latest commit
   become_user: ykk-admin
@@ -42,8 +42,8 @@
   #   git reset --hard origin/main
   shell: |
     cd /home/ykk-admin/db
-    git checkout main
-    git reset --hard dev/jyb
+    git checkout dev/jyb
+    git reset --hard origin/dev/jyb
 
 
 
