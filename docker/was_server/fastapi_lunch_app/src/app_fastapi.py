@@ -202,7 +202,6 @@ async def cancel(request: Request, db: AsyncSession = Depends(get_db)):
     await db.commit()
     return {"success": True, "message": "예약이 취소되었습니다."}
 
-# [수정 후] DB에서 is_admin == True인 사원인지 검증합니다.
 @app.post("/api/admin/login")
 async def admin_login(req: AdminLoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
@@ -278,7 +277,7 @@ async def admin_update_menu(menu_id: int, req: MenuUpdateRequest, request: Reque
     await db.commit()
     return {"success": True}
 
-@app.delete("/api/admin/menus/{menu_id}")
+@app.post("/api/admin/menus/{menu_id}/delete")
 async def admin_delete_menu(menu_id: int, request: Request, db: AsyncSession = Depends(get_db)):
     if not request.session.get("is_admin"):
         raise HTTPException(401)
@@ -309,7 +308,7 @@ async def admin_upload_menu_image(menu_id: int, request: Request, file: UploadFi
     await db.commit()
     return {"success": True, "image_url": menu.image_url}
 
-@app.delete("/api/admin/menus/{menu_id}/image")
+@app.post("/api/admin/menus/{menu_id}/image/delete")
 async def admin_delete_menu_image(menu_id: int, request: Request, db: AsyncSession = Depends(get_db)):
     if not request.session.get("is_admin"):
         raise HTTPException(401)
@@ -356,7 +355,7 @@ async def admin_update_member(emp_id: str, req: MemberUpdateRequest, request: Re
     await db.commit()
     return {"success": True}
 
-@app.delete("/api/admin/members/{emp_id}")
+@app.post("/api/admin/members/{emp_id}/delete")
 async def admin_delete_member(emp_id: str, request: Request, db: AsyncSession = Depends(get_db)):
     if not request.session.get("is_admin"):
         raise HTTPException(401)
