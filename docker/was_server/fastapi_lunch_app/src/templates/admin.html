@@ -336,16 +336,16 @@
     }
   }
 
-  async function updateMenu(id) {
-    const ok = await showConfirm('수량 정보를 저장하시겠습니까?', '저장', false);
-    if (!ok) return;
-    const pop = document.getElementById(`menu-pop-${id}`).checked;
-    const tot = parseInt(document.getElementById(`menu-tot-${id}`).value);
-    const rem = parseInt(document.getElementById(`menu-rem-${id}`).value);
-    await fetch(`/api/admin/menus/${id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ total: tot, remaining: rem, is_popular: pop })
+async function updateMenu(id) {
+    const total = parseInt(document.getElementById(`menu-tot-${id}`).value);
+    const rem   = parseInt(document.getElementById(`menu-rem-${id}`).value);
+    const pop   = document.getElementById(`menu-pop-${id}`).checked;
+    
+    await fetch(`/api/admin/menus/${id}/update`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ total, remaining: rem, is_popular: pop })
     });
+    
     showToast('저장되었습니다.', 'success');
     loadMenuData();
   }
@@ -428,8 +428,8 @@
     const name = document.getElementById(`mem-name-${id}`).value;
     const pw   = document.getElementById(`mem-pw-${id}`).value;
     const dept = document.getElementById(`mem-dept-${id}`).value;
-    await fetch(`/api/admin/members/${id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    await fetch(`/api/admin/members/${id}/update`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, password: pw, department: dept })
     });
     showToast('저장되었습니다.', 'success');

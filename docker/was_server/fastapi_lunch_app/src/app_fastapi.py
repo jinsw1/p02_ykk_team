@@ -202,12 +202,22 @@ async def cancel(request: Request, db: AsyncSession = Depends(get_db)):
     await db.commit()
     return {"success": True, "message": "예약이 취소되었습니다."}
 
+# [수정 후] DB에서 is_admin == True인 사원인지 검증합니다.
 @app.post("/api/admin/login")
-async def admin_login(req: AdminLoginRequest, request: Request):
-    if req.admin_id == "admin" and req.admin_pw == "admin":
+async def admin_login(req: AdminLoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Member).where(
+            Member.employee_id == req.admin_id, 
+            Member.password == req.admin_pw,
+            Member.is_admin == True
+        )
+    )
+    admin_user = result.scalars().first()
+
+    if admin_user:
         request.session["is_admin"] = True
         return {"success": True}
-    return {"success": False, "message": "관리자 정보가 일치하지 않습니다."}
+    return {"success": False, "message": "관리자 정보가 일치하지 않거나 권한이 없습니다."}
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request):
@@ -254,7 +264,7 @@ async def admin_add_menu(req: MenuAddRequest, request: Request, db: AsyncSession
     await db.commit()
     return {"success": True}
 
-@app.put("/api/admin/menus/{menu_id}")
+@app.post("/api/admin/menus/{menu_id}/update")
 async def admin_update_menu(menu_id: int, req: MenuUpdateRequest, request: Request, db: AsyncSession = Depends(get_db)):
     if not request.session.get("is_admin"):
         raise HTTPException(401)
@@ -331,7 +341,7 @@ async def admin_add_member(req: MemberRequest, request: Request, db: AsyncSessio
     await db.commit()
     return {"success": True}
 
-@app.put("/api/admin/members/{emp_id}")
+@app.post("/api/admin/members/{emp_id}/update")
 async def admin_update_member(emp_id: str, req: MemberUpdateRequest, request: Request, db: AsyncSession = Depends(get_db)):
     if not request.session.get("is_admin"):
         raise HTTPException(401)
