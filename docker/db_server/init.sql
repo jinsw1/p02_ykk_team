@@ -31,7 +31,8 @@ CREATE TABLE public.members (
     name character varying(50) NOT NULL,
     password character varying(50) NOT NULL,
     department character varying(50),
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    is_admin boolean DEFAULT false
 );
 
 
@@ -85,16 +86,18 @@ ALTER TABLE ONLY public.reservations ALTER COLUMN id SET DEFAULT nextval('public
 -- Data for Name: members; Type: TABLE DATA; Schema: public; Owner: scott
 --
 
-INSERT INTO public.members VALUES ('EMP001', '김철수', '1234', '개발팀', '2026-06-17 04:52:27.163623');
-INSERT INTO public.members VALUES ('EMP002', '이영희', '1234', '마케팅팀', '2026-06-17 04:52:27.163629');
-INSERT INTO public.members VALUES ('EMP003', '박민준', '1234', '인사팀', '2026-06-17 04:52:27.16363');
-INSERT INTO public.members VALUES ('EMP004', '최지은', '1234', '디자인팀', '2026-06-17 04:52:27.163631');
-INSERT INTO public.members VALUES ('EMP005', '정수현', '1234', '영업팀', '2026-06-17 04:52:27.163631');
-INSERT INTO public.members VALUES ('ykk001', '김현경', '1234', '개발팀', '2026-06-17 06:59:32.295055');
-INSERT INTO public.members VALUES ('ykk002', '진승우', '1234', '개발팀', '2026-06-17 06:59:44.252777');
-INSERT INTO public.members VALUES ('ykk003', '강윤주', '1234', '개발팀', '2026-06-17 07:00:06.64186');
-INSERT INTO public.members VALUES ('ykk004', '조용빈', '1234', '개발팀', '2026-06-17 07:00:23.59148');
-INSERT INTO public.members VALUES ('ykk005', '한지우', '1234', '개발팀', '2026-06-17 07:00:39.811053');
+INSERT INTO public.members (employee_id, name, password, department, created_at, is_admin) VALUES 
+('EMP001', '김철수', '1234', '개발팀', '2026-06-17 04:52:27.163623', false),
+('EMP002', '이영희', '1234', '마케팅팀', '2026-06-17 04:52:27.163629', false),
+('EMP003', '박민준', '1234', '인사팀', '2026-06-17 04:52:27.16363', false),
+('EMP004', '최지은', '1234', '디자인팀', '2026-06-17 04:52:27.163631', false),
+('EMP005', '정수현', '1234', '영업팀', '2026-06-17 04:52:27.163631', false),
+('ykk001', '김현경', '1234', '개발팀', '2026-06-17 06:59:32.295055', false),
+('ykk002', '진승우', '1234', '개발팀', '2026-06-17 06:59:44.252777', false),
+('ykk003', '강윤주', '1234', '개발팀', '2026-06-17 07:00:06.64186', false),
+('ykk004', '조용빈', '1234', '개발팀', '2026-06-17 07:00:23.59148', false),
+('ykk005', '한지우', '1234', '개발팀', '2026-06-17 07:00:39.811053', false),
+('admin', '최고관리자', 'admin', '관리자', '2026-06-21 09:30:00.000000', true);
 
 
 --

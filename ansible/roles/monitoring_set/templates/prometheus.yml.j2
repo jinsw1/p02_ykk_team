@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # 1. 프로메테우스 자체 지표
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 2. 모니터링 서버 자체 상태 (ykk_infra 그룹)
+  - job_name: 'monitoring-node'
+    static_configs:
+      - targets:
+{% for host in groups['ykk_infra'] %}
+          - '{{ host }}:9100'
+{% endfor %}
+
+  # 3. 모니터링 컨테이너 자체 상태
+  - job_name: 'monitoring-containers'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # 4. WAS 서버들 상태 (ykk_was 그룹)
+  - job_name: 'was-nodes'
+    static_configs:
+      - targets:
+{% for host in groups['ykk_was'] %}
+          - '{{ host }}:9100'
+          - '{{ host }}:8080'
+{% endfor %}
+
+  # 5. DB 서버들 상태 (ykk_db 그룹)
+  - job_name: 'db-nodes'
+    static_configs:
+      - targets:
+{% for host in groups['ykk_db'] %}
+          - '{{ host }}:9100'
+          - '{{ host }}:8080'
+{% endfor %}

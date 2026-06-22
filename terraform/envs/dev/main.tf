@@ -194,7 +194,7 @@ resource "aws_security_group" "nat_sg" {
 # → 비용 절감 / 학습용 구조
 resource "aws_instance" "nat_instance" {
   ami                         = data.aws_ami.latest_al2023.id
-  instance_type               = "t3.micro"
+  instance_type               = "t3.small"
   subnet_id                   = module.project02_public_subnet_nat.subnet_id
   associate_public_ip_address = true
 
@@ -296,7 +296,7 @@ resource "aws_route_table_association" "db_rt" {
 # 07. SECURITY GROUPS (Layered access control)
 ############################################
 
-# Infra SG - admin + http + internal ping
+# Infra SG - admin + http + internal ping +  monitoring
 module "project02_infra_sg" {
   source = "../../modules/security-group"
   name   = "project02-infra-sg"
@@ -321,8 +321,22 @@ module "project02_infra_sg" {
       from_port   = -1,
       to_port     = -1,
       protocol    = "icmp",
-      cidr_blocks = [module.project02_vpc.cidr_block],
+      cidr_blocks = ["0.0.0.0/0"],
       description = "internal ping test"
+    },
+    {
+      from_port   = 9100,
+      to_port     = 9100,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "Node Exporter"
+    },
+    {
+      from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "cAdvisor"
     }
   ]
 
@@ -331,7 +345,7 @@ module "project02_infra_sg" {
   ]
 }
 
-# WAS SG - app servers (HTTP/HTTPS exposed internally + SSH)
+# WAS SG - app servers (HTTP/HTTPS exposed internally + SSH + Monitoring)
 module "project02_was_sg" {
   source = "../../modules/security-group"
   name   = "project02-was-sg"
@@ -352,7 +366,8 @@ module "project02_was_sg" {
       cidr_blocks = ["0.0.0.0/0"],
       description = "HTTP app"
     },
-    { from_port   = 443,
+    {
+      from_port   = 443,
       to_port     = 443,
       protocol    = "tcp",
       cidr_blocks = ["0.0.0.0/0"],
@@ -364,6 +379,20 @@ module "project02_was_sg" {
       protocol    = "icmp",
       cidr_blocks = [module.project02_vpc.cidr_block],
       description = "internal test"
+    },
+    {
+      from_port   = 9100,
+      to_port     = 9100,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "Node Exporter"
+    },
+    {
+      from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "cAdvisor"
     }
   ]
 
@@ -377,7 +406,7 @@ module "project02_was_sg" {
   ]
 }
 
-# DB SG - strict access (WAS only allowed to 5432)
+# DB SG - strict access (WAS only allowed to 5432 + Monitoring)
 module "project02_db_sg" {
   source = "../../modules/security-group"
   name   = "project02-db-sg"
@@ -397,6 +426,20 @@ module "project02_db_sg" {
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
       description = "SSH admin"
+    },
+    {
+      from_port   = 9100
+      to_port     = 9100
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Node Exporter"
+    },
+    {
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "cAdvisor"
     }
   ]
 
@@ -494,7 +537,7 @@ resource "aws_iam_instance_profile" "ssm_profile" {
 # Infra EC2 (Tailscale subnet router + bastion role)
 module "project02_infra_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_infra.subnet_id
   security_group_ids   = [module.project02_infra_sg.sg_id]
   key_name             = module.project02_infra_ec2_key.key_name
@@ -534,7 +577,7 @@ module "project02_infra_ec2" {
 # WAS 1 (App server AZ-A)
 module "project02_was01_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_was_a.subnet_id
   security_group_ids   = [module.project02_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
@@ -548,7 +591,7 @@ module "project02_was01_ec2" {
 # WAS 2 (App server AZ-B)
 module "project02_was02_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_was_b.subnet_id
   security_group_ids   = [module.project02_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
@@ -562,7 +605,7 @@ module "project02_was02_ec2" {
 # DB EC2 (PostgreSQL layer)
 module "project02_db_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_db.subnet_id
   security_group_ids   = [module.project02_db_sg.sg_id]
   key_name             = module.project02_db_ec2_key.key_name

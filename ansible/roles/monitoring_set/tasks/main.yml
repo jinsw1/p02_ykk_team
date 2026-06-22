@@ -1,0 +1,71 @@
+---
+- name: Ensure app directory exists
+  file:
+    path: /home/ykk-admin/app
+    state: directory
+    owner: ykk-admin
+    group: ykk-admin
+
+- name: Check git repo exists
+  stat:
+    path: /home/ykk-admin/app/.git
+  register: git_repo
+
+- name: Clone repo (first time only)
+  become_user: ykk-admin
+  shell: |
+    git clone -b dev/jyb --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
+  args:
+    creates: /home/ykk-admin/app/.git
+
+- name: Enable sparse checkout
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/app
+    git sparse-checkout init --cone
+    git sparse-checkout set docker/monitoring_server 
+
+- name: Fetch latest changes
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/app
+    git fetch origin main
+
+- name: Reset to latest commit
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/app
+    git checkout main        
+    git reset --hard dev/jyb 
+
+- name: Generate prometheus.yml with dynamic IPs
+  template:
+    src: prometheus.yml.j2
+    dest: /home/ykk-admin/app/docker/monitoring_server/prometheus.yml
+    owner: ykk-admin
+    group: ykk-admin
+    mode: '0644'
+
+- name: Ensure Prometheus data directory exists with correct permissions
+  become: yes  
+  file:
+    path: /home/ykk-admin/app/docker/monitoring_server/prometheus_data
+    state: directory
+    owner: "65534"
+    group: "65534"
+    mode: '0755'
+
+- name: Ensure Grafana data directory exists with correct permissions
+  become: yes
+  file:
+    path: /home/ykk-admin/app/docker/monitoring_server/grafana_data
+    state: directory
+    owner: "472"
+    group: "472"
+    mode: '0755'
+
+- name: Run docker compose
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/app/docker/monitoring_server
+    docker compose up -d --build
