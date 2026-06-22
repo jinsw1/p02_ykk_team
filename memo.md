@@ -1,3 +1,23 @@
+```bash
+##############################
+# Terraform Backend 설정
+##############################
+
+ansible-playbook -i inventories/infra/inventory_bootstrap.yml playbooks/bootstrap.yml
+
+ansible-playbook -i inventories/prod/inventory_bootstrap.yml playbooks/bootstrap.yml
+ansible-playbook -i inventories/prod/inventory.yml playbooks/site.yml -e env=prod
+
+
+
+ > ansible-playbook -i inventories/infra/inventory.yml playbooks/bootstrap.yml -e env=dev
+
+
+
+
+````
+
+
 
 ```bash
 ##############################

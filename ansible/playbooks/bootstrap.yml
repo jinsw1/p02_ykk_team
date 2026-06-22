@@ -7,3 +7,4 @@
 
   roles:
     - bootstrap_user
+    - common

@@ -32,26 +32,84 @@ data "aws_vpc" "main" {
   }
 }
 
-data "aws_subnet" "private_was_a" {
+# data "aws_subnet" "private_was_a" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["project02-private-was-a"]
+#   }
+# }
+
+# data "aws_subnet" "private_was_b" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["project02-private-was-b"]
+#   }
+# }
+
+# data "aws_subnet" "private_db" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["project02-private-db"]
+#   }
+# }
+
+# Private Subnet - WAS A (AZ-1)
+module "project02_private_subnet_stg_was_a" {
+  source        = "../../modules/subnet"
+  vpc_id        = module.project02_vpc.vpc_id
+  cidr_block    = "10.0.120.0/24"
+  az            = data.aws_availability_zones.available.names[0]
+  map_public_ip = false
+  name          = "project02-private-str-was-a"
+}
+
+# Private Subnet - WAS B (AZ-2)
+module "project02_private_subnet_stg_was_b" {
+  source        = "../../modules/subnet"
+  vpc_id        = module.project02_vpc.vpc_id
+  cidr_block    = "10.0.121.0/24"
+  az            = data.aws_availability_zones.available.names[1]
+  map_public_ip = false
+  name          = "project02-private-str-was-b"
+}
+
+# Private Subnet - DB Layer
+module "project02_private_subnet_stg_db" {
+  source        = "../../modules/subnet"
+  vpc_id        = module.project02_vpc.vpc_id
+  cidr_block    = "10.0.130.0/24"
+  az            = data.aws_availability_zones.available.names[0]
+  map_public_ip = false
+  name          = "project02-private-str-db"
+}
+
+############################################
+# 01-1. ROUTE TABLES (Traffic routing rules)
+############################################
+data "aws_route_table" "public_rt" {
   filter {
     name   = "tag:Name"
-    values = ["project02-private-was-a"]
+    values = ["public-rt"]
   }
 }
 
-data "aws_subnet" "private_was_b" {
-  filter {
-    name   = "tag:Name"
-    values = ["project02-private-was-b"]
-  }
+
+resource "aws_route_table_association" "stg_was_a_rt" {
+  subnet_id      = module.project02_private_subnet_stg_was_a.subnet_id
+  route_table_id = aws_route_table.private_rt.id
+}
+resource "aws_route_table_association" "stg_was_b_rt" {
+  subnet_id      = module.project02_private_subnet_stg_was_b.subnet_id
+  route_table_id = aws_route_table.private_rt.id
 }
 
-data "aws_subnet" "private_db" {
-  filter {
-    name   = "tag:Name"
-    values = ["project02-private-db"]
-  }
+resource "aws_route_table_association" "stg_db_rt" {
+  subnet_id      = module.project02_private_subnet_stg_db.subnet_id
+  route_table_id = aws_route_table.private_rt.id
 }
+
+
+
 
 
 ############################################
@@ -203,9 +261,6 @@ data "aws_subnet" "public_alb_b" {
     values = ["project02-public-alb-b"]
   }
 }
-
-
-
 
 module "stg_alb" {
   source = "../../modules/alb"
@@ -385,7 +440,7 @@ output "staging_url" {
   value       = "https://staging.${var.domain_name}"
 }
 
-output "alb_dns_name" {
+output "stg_alb_dns_name" {
   description = "Staging ALB DNS Name"
   value       = module.stg_alb.dns_name
 }

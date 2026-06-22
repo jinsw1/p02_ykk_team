@@ -10,6 +10,7 @@ class Member(Base):
     password    = Column(String(50),  nullable=False, default="1234")    
     department  = Column(String(50))                     
     created_at  = Column(DateTime, default=datetime.now) 
+    is_admin    = Column(Boolean, default=False)
     reservations = relationship("Reservation", back_populates="member")
 
 class Menu(Base):

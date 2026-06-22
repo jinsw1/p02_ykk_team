@@ -328,7 +328,7 @@
   async function deleteImage(id) {
     const ok = await showConfirm('해당 메뉴의 이미지를 제거하시겠습니까?', '제거');
     if (!ok) return;
-    const res  = await fetch(`/api/admin/menus/${id}/image`, { method: 'DELETE' });
+    const res  = await fetch(`/api/admin/menus/${id}/image/delete`, { method: 'POST' });
     const data = await res.json();
     if (data.success) {
       showToast('이미지가 제거되었습니다.', 'success');
@@ -336,16 +336,16 @@
     }
   }
 
-  async function updateMenu(id) {
-    const ok = await showConfirm('수량 정보를 저장하시겠습니까?', '저장', false);
-    if (!ok) return;
-    const pop = document.getElementById(`menu-pop-${id}`).checked;
-    const tot = parseInt(document.getElementById(`menu-tot-${id}`).value);
-    const rem = parseInt(document.getElementById(`menu-rem-${id}`).value);
-    await fetch(`/api/admin/menus/${id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ total: tot, remaining: rem, is_popular: pop })
+async function updateMenu(id) {
+    const total = parseInt(document.getElementById(`menu-tot-${id}`).value);
+    const rem   = parseInt(document.getElementById(`menu-rem-${id}`).value);
+    const pop   = document.getElementById(`menu-pop-${id}`).checked;
+    
+    await fetch(`/api/admin/menus/${id}/update`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ total, remaining: rem, is_popular: pop })
     });
+    
     showToast('저장되었습니다.', 'success');
     loadMenuData();
   }
@@ -353,7 +353,7 @@
   async function deleteMenu(id) {
     const ok = await showConfirm('해당 메뉴를 삭제하시겠습니까?', '삭제');
     if (!ok) return;
-    await fetch(`/api/admin/menus/${id}`, { method: 'DELETE' });
+    await fetch(`/api/admin/menus/${id}/delete`, { method: 'POST' });
     showToast('메뉴가 삭제되었습니다.', 'success');
     loadMenuData();
   }
@@ -428,8 +428,8 @@
     const name = document.getElementById(`mem-name-${id}`).value;
     const pw   = document.getElementById(`mem-pw-${id}`).value;
     const dept = document.getElementById(`mem-dept-${id}`).value;
-    await fetch(`/api/admin/members/${id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    await fetch(`/api/admin/members/${id}/update`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, password: pw, department: dept })
     });
     showToast('저장되었습니다.', 'success');
@@ -439,7 +439,7 @@
   async function deleteMember(id) {
     const ok = await showConfirm('해당 사원을 삭제하시겠습니까?\n연결된 예약 정보도 함께 삭제됩니다.', '삭제');
     if (!ok) return;
-    await fetch(`/api/admin/members/${id}`, { method: 'DELETE' });
+    await fetch(`/api/admin/members/${id}/delete`, { method: 'POST' });
     showToast('사원이 삭제되었습니다.', 'success');
     loadMemberData();
   }
