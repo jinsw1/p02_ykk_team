@@ -36,7 +36,7 @@
     - role: was_set
 
 - name: " monitoring 서버 초기세팅(docker-compose (monitoring/node-exporter/cadvisor 실행))"
-  hosts: ykk_was
+  hosts: ykk_infra
   roles:
     - role: monitoring_set
 

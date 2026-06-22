@@ -18,6 +18,7 @@ services:
     container_name: grafana
     volumes:
       - ./grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     ports:
@@ -49,22 +50,7 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro  # 💡 표준 도커 경로로 수정
+      - /var/lib/docker:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     privileged: true
     restart: always
-
-# 그라파나 설정
-grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    volumes:
-      - ./grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    ports:
-      - "3000:3000"
-    restart: always
-    depends_on:
-      - prometheus
