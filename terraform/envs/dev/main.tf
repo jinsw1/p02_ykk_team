@@ -296,7 +296,7 @@ resource "aws_route_table_association" "db_rt" {
 # 07. SECURITY GROUPS (Layered access control)
 ############################################
 
-# Infra SG - admin + http + internal ping
+# Infra SG - admin + http + internal ping +  monitoring
 module "project02_infra_sg" {
   source = "../../modules/security-group"
   name   = "project02-infra-sg"
@@ -321,8 +321,22 @@ module "project02_infra_sg" {
       from_port   = -1,
       to_port     = -1,
       protocol    = "icmp",
-      cidr_blocks = [module.project02_vpc.cidr_block],
+      cidr_blocks = ["0.0.0.0/0"],
       description = "internal ping test"
+    },
+    {
+      from_port   = 9100,
+      to_port     = 9100,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "Node Exporter"
+    },
+    {
+      from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "cAdvisor"
     }
   ]
 
@@ -331,7 +345,7 @@ module "project02_infra_sg" {
   ]
 }
 
-# WAS SG - app servers (HTTP/HTTPS exposed internally + SSH)
+# WAS SG - app servers (HTTP/HTTPS exposed internally + SSH + Monitoring)
 module "project02_was_sg" {
   source = "../../modules/security-group"
   name   = "project02-was-sg"
@@ -352,7 +366,8 @@ module "project02_was_sg" {
       cidr_blocks = ["0.0.0.0/0"],
       description = "HTTP app"
     },
-    { from_port   = 443,
+    {
+      from_port   = 443,
       to_port     = 443,
       protocol    = "tcp",
       cidr_blocks = ["0.0.0.0/0"],
@@ -364,6 +379,20 @@ module "project02_was_sg" {
       protocol    = "icmp",
       cidr_blocks = [module.project02_vpc.cidr_block],
       description = "internal test"
+    },
+    {
+      from_port   = 9100,
+      to_port     = 9100,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "Node Exporter"
+    },
+    {
+      from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "cAdvisor"
     }
   ]
 
@@ -377,7 +406,7 @@ module "project02_was_sg" {
   ]
 }
 
-# DB SG - strict access (WAS only allowed to 5432)
+# DB SG - strict access (WAS only allowed to 5432 + Monitoring)
 module "project02_db_sg" {
   source = "../../modules/security-group"
   name   = "project02-db-sg"
@@ -397,6 +426,20 @@ module "project02_db_sg" {
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
       description = "SSH admin"
+    },
+    {
+      from_port   = 9100
+      to_port     = 9100
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Node Exporter"
+    },
+    {
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "cAdvisor"
     }
   ]
 
