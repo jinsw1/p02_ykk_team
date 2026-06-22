@@ -323,7 +323,7 @@ async def admin_delete_menu_image(menu_id: int, request: Request, db: AsyncSessi
 async def admin_get_members(request: Request, db: AsyncSession = Depends(get_db)):
     if not request.session.get("is_admin"):
         raise HTTPException(401)
-    result = await db.execute(select(Member).order_by(Member.employee_id))
+    result = await db.execute(select(Member).where(Member.employee_id != 'admin').order_by(Member.employee_id))
     members = result.scalars().all()
     return {"success": True, "members": [{"employee_id": m.employee_id, "name": m.name, "password": m.password, "department": m.department} for m in members]}
 
