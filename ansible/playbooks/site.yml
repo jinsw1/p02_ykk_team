@@ -25,13 +25,18 @@
   roles:
     - role: docker
 
-- name: "DB 서버 초기세팅(docker-compose (postgresql 실행))"
+- name: "DB 서버 초기세팅(docker-compose (postgresql/node-exporter/cadvisor 실행))"
   hosts: ykk_db
   roles:
     - role: db_set
 
-- name: "was 서버 초기세팅(docker-compose (nginx/fastapi 실행))"
+- name: "was 서버 초기세팅(docker-compose (nginx/fastapi/node-exporter/cadvisor 실행))"
   hosts: ykk_was
   roles:
     - role: was_set
+
+- name: " monitoring 서버 초기세팅(docker-compose (monitoring/node-exporter/cadvisor 실행))"
+  hosts: ykk_was
+  roles:
+    - role: monitoring_set
 
