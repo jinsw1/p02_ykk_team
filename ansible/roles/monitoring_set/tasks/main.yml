@@ -38,6 +38,14 @@
     git checkout main        
     git reset --hard dev/jyb 
 
+- name: Generate prometheus.yml with dynamic IPs
+  template:
+    src: prometheus.yml.j2
+    dest: /home/ykk-admin/app/docker/monitoring_server/prometheus.yml
+    owner: ykk-admin
+    group: ykk-admin
+    mode: '0644'
+
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
