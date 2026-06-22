@@ -194,7 +194,7 @@ resource "aws_security_group" "nat_sg" {
 # → 비용 절감 / 학습용 구조
 resource "aws_instance" "nat_instance" {
   ami                         = data.aws_ami.latest_al2023.id
-  instance_type               = "t3.micro"
+  instance_type               = "t3.small"
   subnet_id                   = module.project02_public_subnet_nat.subnet_id
   associate_public_ip_address = true
 
@@ -537,7 +537,7 @@ resource "aws_iam_instance_profile" "ssm_profile" {
 # Infra EC2 (Tailscale subnet router + bastion role)
 module "project02_infra_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_infra.subnet_id
   security_group_ids   = [module.project02_infra_sg.sg_id]
   key_name             = module.project02_infra_ec2_key.key_name
@@ -577,7 +577,7 @@ module "project02_infra_ec2" {
 # WAS 1 (App server AZ-A)
 module "project02_was01_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_was_a.subnet_id
   security_group_ids   = [module.project02_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
@@ -591,7 +591,7 @@ module "project02_was01_ec2" {
 # WAS 2 (App server AZ-B)
 module "project02_was02_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_was_b.subnet_id
   security_group_ids   = [module.project02_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
@@ -605,7 +605,7 @@ module "project02_was02_ec2" {
 # DB EC2 (PostgreSQL layer)
 module "project02_db_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_db.subnet_id
   security_group_ids   = [module.project02_db_sg.sg_id]
   key_name             = module.project02_db_ec2_key.key_name
