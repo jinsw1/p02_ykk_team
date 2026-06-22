@@ -46,6 +46,24 @@
     group: ykk-admin
     mode: '0644'
 
+- name: Ensure Prometheus data directory exists with correct permissions
+  become: yes  
+  file:
+    path: /home/ykk-admin/app/docker/monitoring_server/prometheus_data
+    state: directory
+    owner: "65534"
+    group: "65534"
+    mode: '0755'
+
+- name: Ensure Grafana data directory exists with correct permissions
+  become: yes
+  file:
+    path: /home/ykk-admin/app/docker/monitoring_server/grafana_data
+    state: directory
+    owner: "472"
+    group: "472"
+    mode: '0755'
+
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
