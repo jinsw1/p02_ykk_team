@@ -7,6 +7,15 @@ chmod +x script.sh
 - 실행 디렉토리 : terraform/
 ####  공통 실행
 ```bash
+
+# envs/infra , envs/dev 에 terraform.tfvars 내용 추가
+tailnet_name       = ""
+tailscale_api_key = ""
+
+cloudflare_api_token = ""
+domain_name          = ""
+
+# backend + infra 실행
 ./script.sh
     # 스크립트 내부 실행 순서
     # 1. envs/backend/ 디렉토리 프로비저닝 (s3 & dynamoDB 생성)
