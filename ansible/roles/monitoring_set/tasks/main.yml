@@ -47,7 +47,9 @@
     mode: '0644'
 
 - name: Ensure Prometheus data directory exists with correct permissions
-  become: yes  
+  become: yes
+  become_method: sudo
+  become_user: root
   file:
     path: /home/ykk-admin/app/docker/monitoring_server/prometheus_data
     state: directory
@@ -57,6 +59,8 @@
 
 - name: Ensure Grafana data directory exists with correct permissions
   become: yes
+  become_method: sudo
+  become_user: root
   file:
     path: /home/ykk-admin/app/docker/monitoring_server/grafana_data
     state: directory
