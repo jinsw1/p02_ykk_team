@@ -38,7 +38,8 @@
   shell: |
     cd /home/ykk-admin/app
     git sparse-checkout init --cone
-    git sparse-checkout set docker/was_server
+    git sparse-checkout set docker/was_server docker/monitoring_agent
+    
 
 # - name: Checkout was_server as standalone worktree
 #   become_user: ykk-admin
@@ -87,12 +88,14 @@
       # DB_NAME=lunch_db
       # DB_PORT=5432
 
-
-
-
-
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/app/docker/was_server
+    docker compose up -d
+
+- name: Run docker compose
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/opt/docker/monitoring_agents
     docker compose up -d
