@@ -121,3 +121,11 @@
   ansible.builtin.package:
     name: "*"
     state: latest
+
+# # 보안 업데이트만
+# - name: Install security updates only
+#   ansible.builtin.dnf:
+#     name: "*"
+#     state: latest
+#     security: true
+

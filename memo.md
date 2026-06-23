@@ -1,3 +1,29 @@
+```bash
+##############################
+# Terraform Backend 설정
+##############################
+
+ansible-playbook -i inventories/infra/inventory_bootstrap.yml playbooks/bootstrap.yml
+
+ansible-playbook -i inventories/prod/inventory_bootstrap.yml playbooks/bootstrap.yml
+ansible-playbook -i inventories/prod/inventory.yml playbooks/site.yml -e env=prod
+
+
+ansible-playbook -i inventories/staging/inventory_bootstrap.yml playbooks/bootstrap.yml
+
+ansible-playbook -i inventories/staging/inventory.yml playbooks/site.yml -e env=staging
+
+
+
+
+ > ansible-playbook -i inventories/infra/inventory.yml playbooks/bootstrap.yml -e env=dev
+
+
+
+
+````
+
+
 
 ```bash
 ##############################
@@ -78,5 +104,11 @@ Staging-세팅
 
 ansible-playbook -i inventories/staging/inventory-bootstrap.yml
 
+
+
+빈 커밋!!!
+
+> git commit --allow-empty -m "Trigger GitHub Actions"
+> git push origin dev/jinsw
 
 ```

@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+
+    # 핵심: 호스트 머신의 메트릭을 그대로 가져오기 위해 host 네트워크 사용
+    network_mode: host
+
+    # (선택) 필요하면 기본 포트 명시적 문서화
+    # ports:
+    #   - "9100:9100"
+    pid: host
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - "/:/host:ro,rslave"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    restart: always
