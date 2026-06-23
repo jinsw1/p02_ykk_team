@@ -13,10 +13,10 @@
 
 - name: Clone repo (first time only)
   become_user: ykk-admin
-  # shell: |
-  #   git clone --no-checkout https://github.com/jinsw1/ykk_team_dev.git /home/ykk-admin/db
   shell: |
-    git clone --no-checkout -b dev/jinsw https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/db      
+    git clone --no-checkout https://github.com/jinsw1/ykk_team_dev.git /home/ykk-admin/db
+  # shell: |
+  #   git clone --no-checkout -b dev/jinsw https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/db      
   args:
     creates: /home/ykk-admin/db/.git
 
@@ -36,14 +36,14 @@
 
 - name: Reset to latest commit
   become_user: ykk-admin
-  # shell: |
-  #   cd /home/ykk-admin/db
-  #   git checkout main
-  #   git reset --hard origin/main
   shell: |
     cd /home/ykk-admin/db
     git checkout main
-    git reset --hard dev/jinsw
+    git reset --hard origin/main
+  # shell: |
+  #   cd /home/ykk-admin/db
+  #   git checkout main
+  #   git reset --hard dev/jinsw
 
 - name: Run docker compose
   become_user: ykk-admin
@@ -54,7 +54,7 @@
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
-    cd /home/ykk-admin/opt/docker/monitoring_agents
+    cd /home/ykk-admin/db/docker/monitoring_agents
     docker compose up -d    
 
 

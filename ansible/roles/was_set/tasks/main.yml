@@ -26,10 +26,10 @@
 
 - name: Clone repo (first time only)
   become_user: ykk-admin
-  # shell: |
-  #   git clone --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
   shell: |
-    git clone -b dev/jinsw --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
+    git clone --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
+  # shell: |
+  #   git clone -b dev/jinsw --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
   args:
     creates: /home/ykk-admin/app/.git
 
@@ -48,12 +48,12 @@
 
 - name: Fetch latest changes
   become_user: ykk-admin
-  # shell: |
-  #   cd /home/ykk-admin/app
-  #   git fetch origin main
   shell: |
-     cd /home/ykk-admin/app
-     git fetch origin dev/jinsw
+    cd /home/ykk-admin/app
+    git fetch origin main
+  # shell: |
+  #    cd /home/ykk-admin/app
+  #    git fetch origin dev/jinsw
 
 - name: Fix ownership
   become: true
@@ -66,15 +66,15 @@
 
 - name: Reset to latest commit
   become_user: ykk-admin
-  # shell: |
-  #   cd /home/ykk-admin/app
-  #   git checkout main
-  #   git reset --hard origin/main
-
   shell: |
     cd /home/ykk-admin/app
-    git checkout dev/jinsw        
-    git reset --hard origin/dev/jinsw    
+    git checkout main
+    git reset --hard origin/main
+
+  # shell: |
+  #   cd /home/ykk-admin/app
+  #   git checkout dev/jinsw        
+  #   git reset --hard origin/dev/jinsw    
 
 
 - name: Create .env file

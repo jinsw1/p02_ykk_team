@@ -22,7 +22,7 @@ module "project02_prod_was01_ec2" {
   security_group_ids   = [module.project02_prod_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
   name                 = "project02-prod-was01"
-  iam_instance_profile = local.ssm_instance_profile
+  iam_instance_profile = local.ssm_instance_profile    
 
   role = "was-prod"
   env  = "prod"

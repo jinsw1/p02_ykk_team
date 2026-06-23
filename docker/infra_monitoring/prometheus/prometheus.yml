@@ -14,6 +14,7 @@ scrape_configs:
         filters:        
           - name: tag:Env
             values:
+              - "infra"
               - "prod"
               - "dev"        
               - "staging"        
