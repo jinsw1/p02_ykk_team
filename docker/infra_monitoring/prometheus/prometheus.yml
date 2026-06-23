@@ -11,13 +11,14 @@ scrape_configs:
     ec2_sd_configs:
       - region: ap-northeast-2
         port: 9100
+        filters:        
+          - name: tag:Env
+            values:
+              - "prod"
+              - "dev"        
+              - "staging"        
 
     relabel_configs:
-
-      - source_labels: [__meta_ec2_tag_Environment]
-        target_label: environment
-        regex: "dev|prod|staging"
-        action: keep
         
       - source_labels: [__meta_ec2_tag_Name]
         target_label: instance
@@ -40,11 +41,6 @@ scrape_configs:
         port: 9187
 
     relabel_configs:
-
-      - source_labels: [__meta_ec2_tag_Environment]
-        target_label: environment
-        regex: "dev|prod|staging"
-        action: keep        
 
       - source_labels: [__meta_ec2_tag_Role]
         regex: DB
