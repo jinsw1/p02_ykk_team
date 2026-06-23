@@ -2,6 +2,120 @@
 ##############################
 # Terraform Backend 설정
 ##############################
+1. Terraform Backend 설정
+- ykk_team/terraform/envs/backend  이동 후
+> terraform init
+> terraform plan
+> terraform apply --auto-approve
+
+2. Terraform infra 설정
+- ykk_team/terraform/envs/infra  이동 후
+> terraform init
+> terraform plan
+> terraform apply --auto-approve
+
+	2-1. infra - Ansible 초기구성
+	- ykk_team/ansible  이동 후
+	> ansible-playbook -i inventories/infra/inventory_bootstrap.yml playbooks/bootstrap.yml
+	> ansible-playbook -i inventories/infra/inventory.yml playbooks/infra_site.yml
+
+	2-2. 그라파나 / 프로메테우스 접속확인
+	  - 테일스테일에 등록되어 있는 project02의 ip
+	  - http:[project02 ip]:3000
+	  - http:[project02 ip]:9090
+
+3. Terraform prod 설정
+- ykk_team/terraform/envs/prod  이동 후
+> terraform init
+> terraform plan
+> terraform apply --auto-approve
+
+	3-1. infra - Ansible 초기구성
+	- ykk_team/ansible  이동 후
+	> ansible-playbook -i inventories/prod/inventory_bootstrap.yml playbooks/bootstrap.yml
+	> ansible-playbook -i inventories/prod/inventory.yml playbooks/site.yml	-e env=prod
+
+	3-2. 프로메테우스 노드 추가 되었는지 확인
+	  - http://[project02 ip]:9090
+
+	3-3. 클라우드플레어 대표도메인으로 접속 테스트!!!!
+		ex) www.infrastudy.store
+
+4. Terraform staging 설정
+- ykk_team/terraform/envs/staging  이동 후
+> terraform init
+> terraform plan
+> terraform apply --auto-approve
+
+	4-1. staging - Ansible 초기구성
+	- ykk_team/ansible  이동 후
+	> ansible-playbook -i inventories/staging/inventory_bootstrap.yml playbooks/bootstrap.yml
+	> ansible-playbook -i inventories/staging/inventory.yml playbooks/site.yml -e env=staging
+
+	4-2. 프로메테우스 노드 추가 되었는지 확인
+	  - http:[project02 ip]:9090
+
+	4-3. 클라우드플레어 대표도메인으로 접속 테스트!!!!
+		ex) staging.infrastudy.store
+
+5. CI/CD 는... 죄송합니다... 체력이.... (조금만 마무리 하면됩니다... )
+main / dev / staging / prod 나누려구요....
+
+6. staging Destroy 확인
+- ykk_team/terraform/envs/staging  이동 후
+> terraform init
+> terraform plan
+> terraform destroy --auto-approve
+
+	6-1. 기존 prod 영향 없는지 확인
+	  - 웹페이지 접속 및 작동확인!!!
+	  - 프로메테우스 모니터링에서 제외 되는지도 확인!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5. prod - Ansible 초기구성
+- ykk_team/ansible  이동 후
+> ansible-playbook -i inventories/infra/inventory_bootstrap.yml playbooks/bootstrap.yml
+> ansible-playbook -i inventories/infra/inventory.yml playbooks/infra_site.yml
+
+
+
+
+
+
+
 
 ansible-playbook -i inventories/infra/inventory_bootstrap.yml playbooks/bootstrap.yml
 

@@ -14,7 +14,7 @@
 - name: Clone repo (first time only)
   become_user: ykk-admin
   shell: |
-    git clone --no-checkout https://github.com/jinsw1/ykk_team_dev.git /home/ykk-admin/db
+    git clone --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/db
   # shell: |
   #   git clone --no-checkout -b dev/jinsw https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/db      
   args:
@@ -55,7 +55,7 @@
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/db/docker/monitoring_agents
-    docker compose up -d    
+    docker compose up -d --build
 
 
 # # 기존 삭제

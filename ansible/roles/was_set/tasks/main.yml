@@ -92,10 +92,10 @@
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/app/docker/was_server
-    docker compose up -d
+    docker compose up -d --build
 
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/app/docker/monitoring_agents
-    docker compose up -d
+    docker compose up -d --build
