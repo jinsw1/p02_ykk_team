@@ -25,7 +25,7 @@
   shell: |
     cd /home/ykk-admin/db
     git sparse-checkout init --cone
-    git sparse-checkout set docker/db_server
+    git sparse-checkout set docker/db_server docker/monitoring_agents
 
 
 - name: Fetch latest changes
@@ -45,15 +45,17 @@
     git checkout main
     git reset --hard dev/jinsw
 
-
-
-
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/db/docker/db_server
     docker compose up -d --build
 
+- name: Run docker compose
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/opt/docker/monitoring_agents
+    docker compose up -d    
 
 
 # # 기존 삭제

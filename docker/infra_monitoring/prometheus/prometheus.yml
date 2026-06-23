@@ -14,14 +14,21 @@ scrape_configs:
 
     relabel_configs:
 
+      - source_labels: [__meta_ec2_tag_Environment]
+        target_label: environment
+        regex: "dev|prod|staging"
+        action: keep
+        
       - source_labels: [__meta_ec2_tag_Name]
         target_label: instance
 
       - source_labels: [__meta_ec2_tag_Role]
         target_label: role
-
+      
       - source_labels: [__meta_ec2_tag_Environment]
-        target_label: environment
+        target_label: environment        
+
+
 
   ##################################################
   # PostgreSQL Exporter
@@ -34,6 +41,11 @@ scrape_configs:
 
     relabel_configs:
 
+      - source_labels: [__meta_ec2_tag_Environment]
+        target_label: environment
+        regex: "dev|prod|staging"
+        action: keep        
+
       - source_labels: [__meta_ec2_tag_Role]
         regex: DB
         action: keep
@@ -42,4 +54,5 @@ scrape_configs:
         target_label: instance
 
       - source_labels: [__meta_ec2_tag_Environment]
-        target_label: environment
+        target_label: environment             
+

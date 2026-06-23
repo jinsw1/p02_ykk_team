@@ -31,7 +31,7 @@
   shell: |
     cd /home/ykk-admin/opt
     git sparse-checkout init --cone
-    git sparse-checkout set docker/infra_monitoring
+    git sparse-checkout set docker/infra_monitoring docker/monitoring_agents
 
 - name: Fetch latest changes
   become_user: ykk-admin
@@ -67,3 +67,9 @@
   shell: |
     cd /home/ykk-admin/opt/docker/infra_monitoring
     docker compose up -d
+
+- name: Run docker compose
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/opt/docker/monitoring_agents
+    docker compose up -d    

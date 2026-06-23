@@ -54,6 +54,7 @@ module "project02_prod_db_ec2" {
 
   role = "db-prod"
   env  = "prod"
+  
 }
 
 ############################################
