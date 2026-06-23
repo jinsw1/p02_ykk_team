@@ -1,12 +1,12 @@
 name: CI/CD Docker
 
 on:
-  push:
-    branches:
-      - main
-      - staging
-      - "dev/**"
-      - "feature/**"
+  # push:
+  #   branches:
+  #     - main
+  #     - staging
+  #     - "dev/**"
+  #     - "feature/**"
 
   workflow_dispatch:
     inputs:
