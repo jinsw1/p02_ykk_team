@@ -91,4 +91,4 @@
 # - name: Run docker compose
 #   ansible.builtin.shell: |
 #     cd /home/ykk-admin/db/03_docker/db_server
-#     docker compose up -d    
+#     docker compose up -d
