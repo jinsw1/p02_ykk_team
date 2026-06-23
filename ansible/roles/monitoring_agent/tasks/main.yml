@@ -31,7 +31,7 @@
   shell: |
     cd /home/ykk-admin/opt
     git sparse-checkout init --cone
-    git sparse-checkout set docker/monitoring_agent
+    git sparse-checkout set docker/monitoring_agents
 
 - name: Fetch latest changes
   become_user: ykk-admin
@@ -45,7 +45,7 @@
 - name: Fix ownership
   become: true
   file:
-    path: /home/ykk-admin/opt/docker/monitoring_agent
+    path: /home/ykk-admin/opt/docker/monitoring_agents
     owner: ykk-admin
     group: ykk-admin
     recurse: yes
@@ -65,5 +65,5 @@
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
-    cd /home/ykk-admin/opt/docker/monitoring_agent
+    cd /home/ykk-admin/opt/docker/monitoring_agents
     docker compose up -d

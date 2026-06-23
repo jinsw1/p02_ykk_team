@@ -35,3 +35,8 @@
   roles:
     - role: was_set
 
+- name: "모니터링 agent"
+  hosts: all
+  roles:
+    - role: monitoring_agent
+

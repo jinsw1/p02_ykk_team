@@ -12,11 +12,22 @@ services:
     # (선택) 필요하면 기본 포트 명시적 문서화
     # ports:
     #   - "9100:9100"
-
     pid: host
-
     command:
       - "--path.rootfs=/host"
-
     volumes:
-      - "/:/host:ro,rslave"    
+      - "/:/host:ro,rslave"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    restart: always
