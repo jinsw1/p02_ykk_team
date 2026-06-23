@@ -36,7 +36,7 @@
 - name: Fetch latest changes
   become_user: ykk-admin
   shell: |
-    cd /home/ykk-admin/app
+    cd /home/ykk-admin/opt
     git fetch origin main
   # shell: |
   #    cd /home/ykk-admin/opt
@@ -53,7 +53,7 @@
 - name: Reset to latest commit
   become_user: ykk-admin
   shell: |
-    cd /home/ykk-admin/app
+    cd /home/ykk-admin/opt
     git checkout main
     git reset --hard origin/main
 
@@ -66,10 +66,10 @@
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/opt/docker/infra_monitoring
-    docker compose up -d
+    docker compose up -d --build
 
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/opt/docker/monitoring_agents
-    docker compose up -d    
+    docker compose up -d --build
