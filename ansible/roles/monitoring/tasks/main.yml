@@ -1,0 +1,84 @@
+---
+# - name: Deploy Monitoring Stack
+#   hosts: infra
+#   become: true
+
+
+
+- name: Ensure opt directory exists
+  file:
+    path: /home/ykk-admin/opt
+    state: directory
+    owner: ykk-admin
+    group: ykk-admin
+
+- name: Check git repo exists
+  stat:
+    path: /home/ykk-admin/opt/.git
+  register: git_repo
+
+- name: Clone repo (first time only)
+  become_user: ykk-admin
+  # shell: |
+  #   git clone --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/opt
+  shell: |
+    git clone -b dev/jinsw --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/opt
+  args:
+    creates: /home/ykk-admin/opt/.git
+
+- name: Enable sparse checkout
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/opt
+    git sparse-checkout init --cone
+    git sparse-checkout set docker/infra_monitoring
+
+- name: Fetch latest changes
+  become_user: ykk-admin
+  # shell: |
+  #   cd /home/ykk-admin/app
+  #   git fetch origin main
+  shell: |
+     cd /home/ykk-admin/opt
+     git fetch origin dev/jinsw
+
+- name: Fix ownership
+  become: true
+  file:
+    path: /home/ykk-admin/opt/docker/was_server
+    owner: ykk-admin
+    group: ykk-admin
+    recurse: yes
+
+- name: Reset to latest commit
+  become_user: ykk-admin
+  # shell: |
+  #   cd /home/ykk-admin/app
+  #   git checkout main
+  #   git reset --hard origin/main
+
+  shell: |
+    cd /home/ykk-admin/opt
+    git checkout dev/jinsw        
+    git reset --hard origin/dev/jinsw    
+
+- name: Run docker compose
+  become_user: ykk-admin
+  shell: |
+    cd /home/ykk-admin/opt/docker/infra_monitoring
+    docker compose up -d
+
+
+  tasks:
+
+    - name: Clone Monitoring Repository
+      git:
+        repo: "https://github.com/your-org/monitoring.git"
+        dest: /opt/monitoring
+        version: main
+        update: yes
+
+    - name: Start Monitoring Stack
+      shell: docker compose up -d
+      args:
+        chdir: /opt/monitoring

@@ -1,0 +1,5 @@
+---
+- name: "infra 모니터링 세텅"
+  hosts: ykk_infra
+  roles:
+    - role: monitoring

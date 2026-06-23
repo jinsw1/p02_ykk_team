@@ -47,9 +47,21 @@
 
 - name: Fetch latest changes
   become_user: ykk-admin
+  # shell: |
+  #   cd /home/ykk-admin/app
+  #   git fetch origin main
   shell: |
-    cd /home/ykk-admin/app
-    git fetch origin main
+     cd /home/ykk-admin/app
+     git fetch origin dev/jinsw
+
+- name: Fix ownership
+  become: true
+  file:
+    path: /home/ykk-admin/app/docker/was_server
+    owner: ykk-admin
+    group: ykk-admin
+    recurse: yes
+
 
 - name: Reset to latest commit
   become_user: ykk-admin
@@ -60,8 +72,8 @@
 
   shell: |
     cd /home/ykk-admin/app
-    git checkout main        
-    git reset --hard dev/jinsw    
+    git checkout dev/jinsw        
+    git reset --hard origin/dev/jinsw    
 
 
 - name: Create .env file
@@ -76,8 +88,11 @@
       # DB_PORT=5432
 
 
+
+
+
 - name: Run docker compose
   become_user: ykk-admin
   shell: |
     cd /home/ykk-admin/app/docker/was_server
-    docker compose up -d --build
+    docker compose up -d

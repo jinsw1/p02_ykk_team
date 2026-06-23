@@ -96,3 +96,65 @@ resource "aws_iam_instance_profile" "ssm_profile" {
   name = "project02-ssm-profile"
   role = aws_iam_role.ssm_role.name
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+resource "aws_iam_role" "infra_role" {
+  name = "project02-infra-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "infra_ssm_attach" {
+  role       = aws_iam_role.infra_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy" "prometheus_discovery" {
+  name = "project02-prometheus-discovery-policy"
+
+  role = aws_iam_role.infra_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Sid    = "PrometheusEC2Discovery"
+        Effect = "Allow"
+
+        Action = [
+          "ec2:DescribeInstances"
+        ]
+
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "infra_profile" {
+  name = "project02-infra-profile"
+  role = aws_iam_role.infra_role.name
+}

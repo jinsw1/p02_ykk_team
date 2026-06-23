@@ -16,7 +16,8 @@ resource "tailscale_tailnet_key" "ec2_join_key" {
 # 완료되어 tailnet에 join하기까지 시간을 위해 대기한 뒤에 조회 시도
 resource "time_sleep" "wait_for_tailscale_sync" {
   depends_on      = [module.project02_infra_ec2]
-  create_duration = "180s"
+  #create_duration = "180s"
+  create_duration = "120s"
 }
 
 ############################################

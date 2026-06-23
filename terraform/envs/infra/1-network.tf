@@ -53,6 +53,11 @@ resource "aws_route_table" "public_rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = module.project02_igw.igw_id
   }
+
+  tags = {
+    Name = "project02-public-rt"
+  }
+
 }
 
 resource "aws_route_table_association" "infra_rt" {
@@ -75,4 +80,8 @@ resource "aws_route_table" "private_rt" {
     cidr_block           = "0.0.0.0/0"
     network_interface_id = aws_instance.nat_instance.primary_network_interface_id
   }
+
+  tags = {
+    Name = "project02-private-rt"
+  }  
 }

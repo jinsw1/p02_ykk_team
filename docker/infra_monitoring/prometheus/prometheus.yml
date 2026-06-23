@@ -1,0 +1,45 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  ##################################################
+  # Node Exporter
+  ##################################################
+  - job_name: "node"
+
+    ec2_sd_configs:
+      - region: ap-northeast-2
+        port: 9100
+
+    relabel_configs:
+
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: instance
+
+      - source_labels: [__meta_ec2_tag_Role]
+        target_label: role
+
+      - source_labels: [__meta_ec2_tag_Environment]
+        target_label: environment
+
+  ##################################################
+  # PostgreSQL Exporter
+  ##################################################
+  - job_name: "postgres"
+
+    ec2_sd_configs:
+      - region: ap-northeast-2
+        port: 9187
+
+    relabel_configs:
+
+      - source_labels: [__meta_ec2_tag_Role]
+        regex: DB
+        action: keep
+
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: instance
+
+      - source_labels: [__meta_ec2_tag_Environment]
+        target_label: environment

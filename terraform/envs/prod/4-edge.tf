@@ -16,29 +16,29 @@ locals {
 ############################################
 # ALB (Load Balancer layer)
 ############################################
-module "project02_alb" {
+module "project02_prod_alb" {
   source = "../../modules/alb"
-  name   = "project02-alb"
+  name   = "project02-prod-alb"
   vpc_id = local.vpc_id
 
   subnets = [
-    module.project02_public_subnet_alb_a.subnet_id,
-    module.project02_public_subnet_alb_b.subnet_id
+    module.project02_prod_public_subnet_alb_a.subnet_id,
+    module.project02_prod_public_subnet_alb_b.subnet_id
   ]
 
-  security_groups = [module.project02_alb_sg.sg_id]
+  security_groups = [module.project02_prod_alb_sg.sg_id]
 }
 
 # Attach WAS instances to ALB target group
 resource "aws_lb_target_group_attachment" "tg_was1" {
-  target_group_arn = module.project02_alb.tg_arn
-  target_id        = module.project02_was01_ec2.instance_id
+  target_group_arn = module.project02_prod_alb.tg_arn
+  target_id        = module.project02_prod_was01_ec2.instance_id
   port             = 80
 }
 
 resource "aws_lb_target_group_attachment" "tg_was2" {
-  target_group_arn = module.project02_alb.tg_arn
-  target_id        = module.project02_was02_ec2.instance_id
+  target_group_arn = module.project02_prod_alb.tg_arn
+  target_id        = module.project02_prod_was02_ec2.instance_id
   port             = 80
 }
 
@@ -79,7 +79,7 @@ resource "aws_acm_certificate_validation" "this" {
 
 # HTTP redirect to HTTPS (security best practice)
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = module.project02_alb.alb_arn
+  load_balancer_arn = module.project02_prod_alb.alb_arn
   port              = 80
   protocol          = "HTTP"
 
@@ -96,7 +96,7 @@ resource "aws_lb_listener" "http" {
 
 # HTTPS listener (TLS termination at ALB)
 resource "aws_lb_listener" "https" {
-  load_balancer_arn = module.project02_alb.alb_arn
+  load_balancer_arn = module.project02_prod_alb.alb_arn
   port              = 443
   protocol          = "HTTPS"
 
@@ -106,7 +106,7 @@ resource "aws_lb_listener" "https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = module.project02_alb.tg_arn
+    target_group_arn = module.project02_prod_alb.tg_arn
   }
 }
 
@@ -120,6 +120,6 @@ module "project02_dns" {
 
   name    = "www"
   type    = "CNAME"
-  content = module.project02_alb.dns_name
+  content = module.project02_prod_alb.dns_name
   proxied = true
 }

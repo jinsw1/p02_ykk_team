@@ -29,7 +29,8 @@ module "project02_infra_ec2" {
   security_group_ids   = [module.project02_infra_sg.sg_id]
   key_name             = module.project02_infra_ec2_key.key_name
   name                 = "project02-infra"
-  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+  #iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+  iam_instance_profile = aws_iam_instance_profile.infra_profile.name
   
   role = "infra"
   env  = "infra"
