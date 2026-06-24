@@ -69,3 +69,4 @@ resource "aws_ssm_parameter" "db_host" {
 
   depends_on = [module.project02_prod_db_ec2]
 }
+

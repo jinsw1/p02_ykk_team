@@ -219,9 +219,9 @@ jobs:
 
 
               \"cd /home/ykk-admin/app\",
-              \"echo Branch: ${{ github.ref_name }}\",
-              \"git fetch origin ${{ github.ref_name }}\",
-              \"git checkout origin/${{ github.ref_name }} -- docker/was_server\",      
+              \"git fetch origin dev/jinsw\",
+              \"git checkout origin/dev/jinsw -- docker/was_server\",
+              
 
               \"cd /home/ykk-admin/app/docker/was_server\",
 

@@ -28,8 +28,6 @@
   become_user: ykk-admin
   shell: |
     git clone --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
-  # shell: |
-  #   git clone -b dev/jinsw --no-checkout https://github.com/jinsw1/p02_ykk_team.git /home/ykk-admin/app
   args:
     creates: /home/ykk-admin/app/.git
 

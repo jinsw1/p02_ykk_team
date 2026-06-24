@@ -133,21 +133,16 @@ resource "aws_iam_role_policy_attachment" "infra_ssm_attach" {
 
 resource "aws_iam_role_policy" "prometheus_discovery" {
   name = "project02-prometheus-discovery-policy"
-
   role = aws_iam_role.infra_role.id
-
   policy = jsonencode({
     Version = "2012-10-17"
-
     Statement = [
       {
         Sid    = "PrometheusEC2Discovery"
         Effect = "Allow"
-
         Action = [
           "ec2:DescribeInstances"
         ]
-
         Resource = "*"
       }
     ]
