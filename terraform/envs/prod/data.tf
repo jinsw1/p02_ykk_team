@@ -5,7 +5,7 @@
 data "terraform_remote_state" "infra" {
   backend = "s3"
   config = {
-    bucket = "project02-ykk-infra-tfstate"
+    bucket = "project02-ykk-jyb-infra-tfstate"
     key    = "infra/terraform.tfstate"
     region = "ap-northeast-2"
   }

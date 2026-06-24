@@ -17,7 +17,7 @@ provider "aws" { region = "ap-northeast-2" }
 # S3 (state 저장소) + DynamoDB (state 잠금)
 ############################################
 resource "aws_s3_bucket" "tfstate" {
-  bucket        = "project02-ykk-infra-tfstate"
+  bucket        = "project02-ykk-jyb-infra-tfstate"
   force_destroy = true
 
   tags = { Name = "project02-ykk-infra-tfstate" }

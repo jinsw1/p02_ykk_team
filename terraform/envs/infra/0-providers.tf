@@ -14,7 +14,7 @@ terraform {
 
   # tfstate를 S3에 저장
   backend "s3" {
-    bucket         = "project02-ykk-infra-tfstate"
+    bucket         = "project02-ykk-jyb-infra-tfstate"
     key            = "infra/terraform.tfstate"
     region         = "ap-northeast-2"	
     #dynamodb_table = "project02-infra-tfstate-lock"

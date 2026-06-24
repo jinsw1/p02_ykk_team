@@ -17,7 +17,7 @@ module "project02_db_ec2_key" {
 # WAS 1 (App server AZ-A)
 module "project02_prod_was01_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_prod_private_subnet_was_a.subnet_id
   security_group_ids   = [module.project02_prod_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
@@ -31,7 +31,7 @@ module "project02_prod_was01_ec2" {
 # WAS 2 (App server AZ-B)
 module "project02_prod_was02_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_prod_private_subnet_was_b.subnet_id
   security_group_ids   = [module.project02_prod_was_sg.sg_id]
   key_name             = module.project02_was_ec2_key.key_name
@@ -45,7 +45,7 @@ module "project02_prod_was02_ec2" {
 # DB EC2 (PostgreSQL layer)
 module "project02_prod_db_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_prod_private_subnet_db.subnet_id
   security_group_ids   = [module.project02_prod_db_sg.sg_id]
   key_name             = module.project02_db_ec2_key.key_name
