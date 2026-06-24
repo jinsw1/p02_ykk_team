@@ -24,7 +24,7 @@ module "project02_infra_ec2_key" {
 ############################################
 module "project02_infra_ec2" {
   source               = "../../modules/ec2"
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   subnet_id            = module.project02_private_subnet_infra.subnet_id
   security_group_ids   = [module.project02_infra_sg.sg_id]
   key_name             = module.project02_infra_ec2_key.key_name

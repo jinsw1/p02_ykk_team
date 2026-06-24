@@ -24,6 +24,12 @@ module "project02_staging_was_sg" {
 	  security_groups = [module.project02_staging_alb_sg.sg_id]
       description = "HTTP app"
     },
+    { from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      security_groups = [local.infra_sg_id],
+      description = "Prometheus to Was cadvisor"
+    },		
     { from_port   = 443,
       to_port     = 443,
       protocol    = "tcp",
@@ -77,6 +83,12 @@ module "project02_staging_db_sg" {
       security_groups = [local.infra_sg_id]
       description = "Prometheus to Was Node_exporter"
     },
+    { from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      security_groups = [local.infra_sg_id],
+      description = "Prometheus to Was cadvisor"
+    },		
     {
       from_port   = 22
       to_port     = 22
