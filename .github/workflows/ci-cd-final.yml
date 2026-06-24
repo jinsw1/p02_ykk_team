@@ -135,7 +135,7 @@ jobs:
         if: needs.detect.outputs.app == 'true'
         run: |
           docker build \
-            -t jinsw1/ykk-app:$SHA_TAG \
+            -t jinsw1/ykk-app:$IMAGE_TAG-$SHA_TAG \
             -t jinsw1/ykk-app:$IMAGE_TAG \
             ./docker/was_server/fastapi_lunch_app
 
@@ -149,8 +149,8 @@ jobs:
       - name: Push Docker image
         if: needs.detect.outputs.app == 'true'
         run: |
-          docker push jinsw1/ykk-app:${IMAGE_TAG}-${SHA_TAG}
-          docker push jinsw1/ykk-app:${IMAGE_TAG}
+          docker push jinsw1/ykk-app:$IMAGE_TAG-$SHA_TAG
+          docker push jinsw1/ykk-app:$IMAGE_TAG
 
 
       # =========================
