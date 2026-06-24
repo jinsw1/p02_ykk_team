@@ -10,6 +10,13 @@ module "project02_infra_sg" {
 
   ingress_rules = [
     {
+      from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "cAdvisor"
+    },
+    {
       from_port   = 22,
       to_port     = 22,
       protocol    = "tcp",

@@ -70,6 +70,13 @@ module "project02_prod_db_sg" {
   vpc_id = local.vpc_id
 
   ingress_rules = [
+        {
+      from_port   = 8080,
+      to_port     = 8080,
+      protocol    = "tcp",
+      cidr_blocks = ["0.0.0.0/0"],
+      description = "cAdvisor"
+    },
     {
       from_port   = 8080,
       to_port     = 8080,

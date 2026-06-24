@@ -31,25 +31,28 @@ scrape_configs:
         target_label: environment        
 
 
-
-  ##################################################
-  # PostgreSQL Exporter
-  ##################################################
-  - job_name: "postgres"
+##################################################
+# cAdvisor
+##################################################
+  - job_name: "cadvisor"
 
     ec2_sd_configs:
       - region: ap-northeast-2
-        port: 9187
+        port: 8080
+        filters:
+          - name: tag:Env
+            values:
+              - "infra"
+              - "prod"
+              - "dev"
+              - "staging"
 
     relabel_configs:
-
-      - source_labels: [__meta_ec2_tag_Role]
-        regex: DB
-        action: keep
-
       - source_labels: [__meta_ec2_tag_Name]
         target_label: instance
 
-      - source_labels: [__meta_ec2_tag_Environment]
-        target_label: environment             
+      - source_labels: [__meta_ec2_tag_Role]
+        target_label: role
 
+      - source_labels: [__meta_ec2_tag_Environment]
+        target_label: environment
