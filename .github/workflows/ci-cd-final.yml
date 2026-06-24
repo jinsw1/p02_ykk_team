@@ -81,6 +81,11 @@ jobs:
           echo "ENV=$ENV" >> $GITHUB_ENV
           echo "Selected ENV = $ENV"
 
+      # =========================
+      # 브랜치명 환경변수
+      # =========================
+      - name: Set branch name
+        run: echo "BRANCH_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
 
       # =========================
       # 3. Environment mapping (ROLE / IMAGE TAG)
@@ -132,7 +137,7 @@ jobs:
           docker build \
             -t jinsw1/ykk-app:$SHA_TAG \
             -t jinsw1/ykk-app:$IMAGE_TAG \
-            ./docker/was_server/fastapi_lunch_app      
+            ./docker/was_server/fastapi_lunch_app
 
 
       # =========================
@@ -145,7 +150,7 @@ jobs:
         if: needs.detect.outputs.app == 'true'
         run: |
           docker push jinsw1/ykk-app:$SHA_TAG
-          docker push jinsw1/ykk-app:$IMAGE_TAG      
+          docker push jinsw1/ykk-app:$IMAGE_TAG
 
 
       # =========================
@@ -214,9 +219,9 @@ jobs:
 
 
               \"cd /home/ykk-admin/app\",
-              \"git fetch origin dev/jinsw\",
-              \"git checkout origin/dev/jinsw -- docker/was_server\",
-              
+              \"echo Branch: ${{ github.ref_name }}\",
+              \"git fetch origin ${{ github.ref_name }}\",
+              \"git checkout origin/${{ github.ref_name }} -- docker/was_server\",      
 
               \"cd /home/ykk-admin/app/docker/was_server\",
 
