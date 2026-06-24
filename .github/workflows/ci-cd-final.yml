@@ -149,7 +149,7 @@ jobs:
       - name: Push Docker image
         if: needs.detect.outputs.app == 'true'
         run: |
-          docker push jinsw1/ykk-app:$SHA_TAG
+          docker push jinsw1/ykk-app:$IMAGE_TAG-$SHA_TAG
           docker push jinsw1/ykk-app:$IMAGE_TAG
 
 
